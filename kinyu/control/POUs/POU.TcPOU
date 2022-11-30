@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.9">
+  <POU Name="POU" Id="{8accdd42-0350-4a26-b2f0-0849d5605925}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM POU
+VAR
+    bStart          : BOOL := TRUE;
+    fbTimer         : TON;
+    tTimerValue     : TIME := T#1S;
+    fbTrigger       : R_TRIG;
+    tTimeReturn1    : TIME;
+    tTimeReturn2    : TIME;
+    tDifference     : TIME;	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[fbTimer(IN := bStart, PT := tTimerValue);
+fbTrigger(CLK := fbTimer.IN);
+
+IF fbTrigger.Q THEN
+    tTimeReturn1  := TIME();
+END_IF
+
+IF fbTimer.Q THEN
+    bStart        := FALSE;
+    tTimeReturn2  := TIME();
+    tDifference   := tTimeReturn2 - tTimeReturn1;    // The difference will be T#5s
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="POU">
+      <LineId Id="13" Count="10" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

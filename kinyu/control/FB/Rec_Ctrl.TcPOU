@@ -1,0 +1,382 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Rec_Ctrl" Id="{855bbf2a-71ff-4a32-9816-efd88d6d7945}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Rec_Ctrl
+VAR_INPUT
+	Enable     : BOOL;
+	Stop       : BOOL;
+	Step	   :One_Recipt;
+END_VAR
+VAR_OUTPUT
+	bStart : BOOL;
+	bBusy  : BOOL;
+	bDone  : BOOL;
+	bError : BOOL;
+	State  : INT;
+END_VAR
+VAR
+	bTon : BOOL;
+	dur : Ton;
+	Rec_duration:Ton;
+	nState: INT;
+	i : INT := 1;
+	pos_delay:TON;
+	
+	M2toM1_delay: Ton;
+	M2toM1_in: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF Stop THEN
+	bStart := FALSE;
+	bBusy  := FALSE;
+	bDone  := FALSE;
+	bError := FALSE;
+	bTon   := FALSE;
+	nState := 0;
+	i      := 1;
+	Rec_finish:=1;
+	Stop:=0;
+END_IF
+
+
+
+CASE nState OF
+0 :	
+	IF Enable AND NOT (bBusy OR bError) THEN
+		bDone  := FALSE;
+		bBusy  := TRUE;
+		nState := 1;
+		i      := 1;
+	END_IF
+	
+	IF NOT Enable THEN
+		bBusy  := FALSE;
+		bError := FALSE;		
+	END_IF	
+1 :
+	
+	IF step.Rec_array[i].delay > 0 THEN //use delay to change step
+		bTon   := TRUE;
+		bStart := TRUE;	
+		
+	ELSIF step.Rec_array[i].Set2Pos = 1 THEN //wait until go to right place
+		IF (step.Rec_array[i].M1toM2 OR step.Rec_array[i].M3toM2) AND MAIN.M2_SNR1 AND MAIN.M2_SNR2 THEN
+			GVL.ON_POS:=1;
+		END_IF
+		
+		IF step.Rec_array[i].M2toM3 AND MAIN.M3_SNR1 AND MAIN.M3_SNR2 THEN
+			GVL.ON_POS:=1;
+		END_IF
+		
+		IF step.Rec_array[i].M2toM1 AND main.M2_SNR1 = 0 AND main.M2_SNR2 = 0 THEN
+			M2ToM1_in := 1;
+			IF M2ToM1_delay.Q THEN
+				ON_POS:=1;
+			END_IF
+		END_IF
+		
+		IF (Rec_take_up_finish AND take_up_btn) OR (Rec_put_down_finish AND put_down_btn) THEN
+			ON_POS:=1;
+		END_IF
+		
+		IF pos_delay.Q THEN
+			Rec_take_up_finish:=0;
+			Rec_put_down_finish:=0;
+			ON_POS:=0;
+			M2ToM1_in:=0;
+			i:= i + 1;
+			nState := 2;
+		END_IF
+		
+	ELSIF step.Rec_array[i].M2_pressure_setting <> 0 THEN
+		IF M2_current_pressure > step.Rec_array[i].M2_pressure_setting THEN
+			i:= i + 1;
+			nState := 2;
+		END_IF
+		
+	ELSE
+		i := i + 1;
+		IF i > 30 THEN
+			i := 1;
+			Rec_start_btn:=0;
+			Rec_finish:=1;
+		END_IF		
+	END_IF
+	
+	IF Rec_duration.Q  AND step.Rec_array[i].Set2Pos = 0 THEN
+		i := i + 1;
+		IF i > 30 THEN
+			i := 1;
+		END_IF
+		nState := 2;
+	END_IF
+
+2 :	
+	IF i < 2 THEN
+		bDone  := TRUE;
+		bBusy  := FALSE;
+		nState := 0;
+	ELSE
+		nState := 1;	
+	END_IF
+	bStart := FALSE;
+	bTon   := FALSE;
+END_CASE
+
+Rec_duration(IN:= bTon, PT:= INT_TO_TIME(Step.Rec_array[i].delay)*1000, Q=> , ET=> );//add 0.1s in order to let other delay 
+pos_delay(IN:=GVL.ON_POS,PT:=T#0.1S,Q=>);
+M2toM1_delay(IN:=M2toM1_in, PT:=T#10S,Q=>);
+State := i;
+
+//SV1:=step.Rec_array[i].Heater_Temp1;
+//SV2:=step.Rec_array[i].Heater_Temp2;
+
+lv80_btn := step.Rec_array[i].LV80;
+WSU_btn := step.Rec_array[i].WSU251;
+IF step.Rec_array[i].VB4 = 0 THEN
+	DO4_6:=0;
+ELSE
+	DO4_6:=1;
+END_IF
+
+IF step.Rec_array[i].GV1 = 0 THEN
+	GV1_btn_close:=1;
+	GV1_btn_open:=0;
+ELSE
+	GV1_btn_close:=0;
+	GV1_btn_open:=1;
+END_IF
+
+IF step.Rec_array[i].GV2 = 0 THEN
+	GV2_btn_open:=0;
+	GV2_btn_close:=1;
+ELSE
+	GV2_btn_open:=1;
+	GV2_btn_close:=0;
+END_IF
+
+IF step.Rec_array[i].NC1 THEN
+	DO2_0:=1;
+ELSE
+	DO2_0:=0;
+END_IF
+
+IF step.Rec_array[i].NC2 THEN
+	DO2_1:=1;
+ELSE
+	DO2_1:=0;
+END_IF
+
+IF step.Rec_array[i].NC3 THEN
+	DO2_2:=1;
+ELSE
+	DO2_2:=0;
+END_IF
+
+IF step.Rec_array[i].NC4 THEN
+	DO2_3:=1;
+ELSE
+	DO2_3:=0;
+END_IF
+
+IF step.Rec_array[i].NC5 THEN
+	DO2_4:=1;
+ELSE
+	DO2_4:=0;
+END_IF
+
+IF step.Rec_array[i].NC6 THEN
+	DO2_5:=1;
+ELSE
+	DO2_5:=0;
+END_IF
+
+IF step.Rec_array[i].NC7 THEN
+	DO2_6:=1;
+ELSE
+	DO2_6:=0;
+END_IF
+
+IF step.Rec_array[i].NC8 THEN
+	DO2_7:=1;
+ELSE
+	DO2_7:=0;
+END_IF
+
+IF step.Rec_array[i].NC9 THEN
+	DO3_0:=1;
+ELSE
+	DO3_0:=0;
+END_IF
+
+IF step.Rec_array[i].RV1 THEN
+	DO4_7:=1;
+ELSE
+	DO4_7:=0;
+END_IF
+
+IF step.Rec_array[i].RV2 THEN
+	DO5_0:=1;
+ELSE
+	DO5_0:=0;
+END_IF
+
+IF step.Rec_array[i].VENT2 THEN
+	DO4_1:=1;
+ELSE
+	DO4_1:=0;
+END_IF
+
+IF step.Rec_array[i].VENT3 THEN
+	DO4_2:=1;
+ELSE
+	DO4_2:=0;
+END_IF
+
+IF step.Rec_array[i].MFC1_button THEN
+	mfc1_open_btn:=1;
+ELSE
+	mfc1_open_btn:=0;
+END_IF
+
+IF step.Rec_array[i].MFC2_button THEN
+	mfc2_open_btn:=1;
+ELSE
+	mfc2_open_btn:=0;
+END_IF
+
+MFC1_Inp:=step.Rec_array[i].MFC1_Setting;
+MFC2_Inp:=step.Rec_array[i].MFC2_Setting;
+M1TOM2:=step.Rec_array[i].M1toM2;
+M2ToM3:=step.Rec_array[i].M2toM3;
+M3ToM2:=step.Rec_array[i].M3toM2;
+M2ToM1:=step.Rec_array[i].M2toM1;
+HTC_SetPos:=step.Rec_array[i].Position_setting;
+CUR_step_name:=step.Rec_array[i].step_Name;
+swing_btn:=step.Rec_array[i].Swing;
+take_up_btn:=step.Rec_array[i].Take_up;
+put_down_btn:=step.Rec_array[i].Put_down;]]></ST>
+    </Implementation>
+    <LineIds Name="Rec_Ctrl">
+      <LineId Id="23" Count="7" />
+      <LineId Id="429" Count="0" />
+      <LineId Id="541" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="157" Count="0" />
+      <LineId Id="216" Count="0" />
+      <LineId Id="32" Count="18" />
+      <LineId Id="227" Count="0" />
+      <LineId Id="84" Count="0" />
+      <LineId Id="217" Count="2" />
+      <LineId Id="221" Count="0" />
+      <LineId Id="223" Count="2" />
+      <LineId Id="416" Count="2" />
+      <LineId Id="423" Count="2" />
+      <LineId Id="419" Count="0" />
+      <LineId Id="508" Count="0" />
+      <LineId Id="511" Count="2" />
+      <LineId Id="344" Count="1" />
+      <LineId Id="514" Count="0" />
+      <LineId Id="516" Count="0" />
+      <LineId Id="349" Count="0" />
+      <LineId Id="426" Count="0" />
+      <LineId Id="346" Count="0" />
+      <LineId Id="348" Count="0" />
+      <LineId Id="347" Count="0" />
+      <LineId Id="632" Count="0" />
+      <LineId Id="603" Count="2" />
+      <LineId Id="607" Count="0" />
+      <LineId Id="606" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="164" Count="2" />
+      <LineId Id="192" Count="0" />
+      <LineId Id="428" Count="0" />
+      <LineId Id="167" Count="0" />
+      <LineId Id="62" Count="0" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="352" Count="5" />
+      <LineId Id="351" Count="0" />
+      <LineId Id="70" Count="6" />
+      <LineId Id="130" Count="0" />
+      <LineId Id="78" Count="5" />
+      <LineId Id="342" Count="0" />
+      <LineId Id="420" Count="0" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="482" Count="0" />
+      <LineId Id="481" Count="0" />
+      <LineId Id="483" Count="0" />
+      <LineId Id="236" Count="0" />
+      <LineId Id="234" Count="0" />
+      <LineId Id="237" Count="0" />
+      <LineId Id="567" Count="1" />
+      <LineId Id="571" Count="1" />
+      <LineId Id="569" Count="0" />
+      <LineId Id="566" Count="0" />
+      <LineId Id="238" Count="0" />
+      <LineId Id="363" Count="0" />
+      <LineId Id="366" Count="0" />
+      <LineId Id="364" Count="1" />
+      <LineId Id="239" Count="1" />
+      <LineId Id="244" Count="0" />
+      <LineId Id="243" Count="0" />
+      <LineId Id="367" Count="0" />
+      <LineId Id="245" Count="0" />
+      <LineId Id="247" Count="1" />
+      <LineId Id="368" Count="0" />
+      <LineId Id="246" Count="0" />
+      <LineId Id="250" Count="0" />
+      <LineId Id="249" Count="0" />
+      <LineId Id="251" Count="0" />
+      <LineId Id="253" Count="1" />
+      <LineId Id="252" Count="0" />
+      <LineId Id="256" Count="4" />
+      <LineId Id="255" Count="0" />
+      <LineId Id="262" Count="4" />
+      <LineId Id="261" Count="0" />
+      <LineId Id="268" Count="4" />
+      <LineId Id="267" Count="0" />
+      <LineId Id="274" Count="4" />
+      <LineId Id="273" Count="0" />
+      <LineId Id="280" Count="4" />
+      <LineId Id="279" Count="0" />
+      <LineId Id="286" Count="4" />
+      <LineId Id="285" Count="0" />
+      <LineId Id="292" Count="4" />
+      <LineId Id="291" Count="0" />
+      <LineId Id="298" Count="4" />
+      <LineId Id="297" Count="0" />
+      <LineId Id="304" Count="0" />
+      <LineId Id="303" Count="0" />
+      <LineId Id="305" Count="0" />
+      <LineId Id="307" Count="1" />
+      <LineId Id="306" Count="0" />
+      <LineId Id="310" Count="4" />
+      <LineId Id="309" Count="0" />
+      <LineId Id="317" Count="0" />
+      <LineId Id="319" Count="3" />
+      <LineId Id="315" Count="0" />
+      <LineId Id="574" Count="0" />
+      <LineId Id="573" Count="0" />
+      <LineId Id="575" Count="0" />
+      <LineId Id="577" Count="1" />
+      <LineId Id="576" Count="0" />
+      <LineId Id="324" Count="0" />
+      <LineId Id="323" Count="0" />
+      <LineId Id="325" Count="0" />
+      <LineId Id="327" Count="1" />
+      <LineId Id="326" Count="0" />
+      <LineId Id="330" Count="4" />
+      <LineId Id="329" Count="0" />
+      <LineId Id="336" Count="0" />
+      <LineId Id="335" Count="0" />
+      <LineId Id="337" Count="0" />
+      <LineId Id="339" Count="2" />
+      <LineId Id="338" Count="0" />
+      <LineId Id="350" Count="0" />
+      <LineId Id="369" Count="0" />
+      <LineId Id="454" Count="2" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,174 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="GVL" Id="{d1b96ea4-cebc-41de-a4b4-c0c2d6cfcf70}">
+    <Declaration><![CDATA[
+VAR_GLOBAL
+	
+
+DI0_0 AT %I* :BOOL;
+DI0_1 AT %I* :BOOL;
+DI0_2 AT %I* :BOOL;
+DI0_3 AT %I* :BOOL;
+DI0_4 AT %I* :BOOL;
+DI0_5 AT %I* :BOOL;
+DI0_6 AT %I* :BOOL;
+DI0_7 AT %I* :BOOL;
+
+DI1_0 AT %I* :BOOL;
+DI1_1 AT %I* :BOOL;
+DI1_2 AT %I* :BOOL;
+DI1_3 AT %I* :BOOL;
+DI1_4 AT %I* :BOOL;
+DI1_5 AT %I* :BOOL;
+DI1_6 AT %I* :BOOL;
+DI1_7 AT %I* :BOOL;
+
+DI2_0 AT %I* :BOOL;
+DI2_1 AT %I* :BOOL;
+DI2_2 AT %I* :BOOL;
+DI2_3 AT %I* :BOOL;
+DI2_4 AT %I* :BOOL;
+DI2_5 AT %I* :BOOL;
+DI2_6 AT %I* :BOOL;
+DI2_7 AT %I* :BOOL;
+
+DI3_0 AT %I* :BOOL;
+DI3_1 AT %I* :BOOL;
+DI3_2 AT %I* :BOOL;
+DI3_3 AT %I* :BOOL;
+DI3_4 AT %I* :BOOL;
+DI3_5 AT %I* :BOOL;
+DI3_6 AT %I* :BOOL;
+DI3_7 AT %I* :BOOL;
+
+
+DO0_0 AT %Q* :BOOL;
+DO0_1 AT %Q* :BOOL;
+DO0_2 AT %Q* :BOOL;
+DO0_3 AT %Q* :BOOL;
+DO0_4 AT %Q* :BOOL;
+DO0_5 AT %Q* :BOOL;
+DO0_6 AT %Q* :BOOL;
+DO0_7 AT %Q* :BOOL;
+
+DO1_0 AT %Q* :BOOL;
+DO1_1 AT %Q* :BOOL;
+DO1_2 AT %Q* :BOOL;
+DO1_3 AT %Q* :BOOL;
+DO1_4 AT %Q* :BOOL:=1;
+DO1_5 AT %Q* :BOOL:=1;
+DO1_6 AT %Q* :BOOL:=1;
+DO1_7 AT %Q* :BOOL:=1;
+
+DO2_0 AT %Q* :BOOL;
+DO2_1 AT %Q* :BOOL;
+DO2_2 AT %Q* :BOOL;
+DO2_3 AT %Q* :BOOL;
+DO2_4 AT %Q* :BOOL;
+DO2_5 AT %Q* :BOOL;
+DO2_6 AT %Q* :BOOL;
+DO2_7 AT %Q* :BOOL;
+
+DO3_0 AT %Q* :BOOL;
+DO3_1 AT %Q* :BOOL;
+DO3_2 AT %Q* :BOOL;
+DO3_3 AT %Q* :BOOL;
+DO3_4 AT %Q* :BOOL;
+DO3_5 AT %Q* :BOOL;
+DO3_6 AT %Q* :BOOL;
+DO3_7 AT %Q* :BOOL;
+
+DO4_0 AT %Q* :BOOL;
+DO4_1 AT %Q* :BOOL;
+DO4_2 AT %Q* :BOOL;
+DO4_3 AT %Q* :BOOL;
+DO4_4 AT %Q* :BOOL;
+DO4_5 AT %Q* :BOOL;
+DO4_6 AT %Q* :BOOL;
+DO4_7 AT %Q* :BOOL;
+
+DO5_0 AT %Q* :BOOL;
+DO5_1 AT %Q* :BOOL;
+DO5_2 AT %Q* :BOOL;
+DO5_3 AT %Q* :BOOL;
+DO5_4 AT %Q* :BOOL;
+DO5_5 AT %Q* :BOOL;
+DO5_6 AT %Q* :BOOL;
+DO5_7 AT %Q* :BOOL;
+
+
+AI0_0 AT %I* :UINT;
+AI0_1 AT %I* :UINT;
+AI0_2 AT %I* :UINT;
+AI0_3 AT %I* :UINT;//CG1
+
+AI1_0 AT %I* :UINT;//CG2
+AI1_1 AT %I* :UINT;//CG3
+AI1_2 AT %I* :UINT;
+AI1_3 AT %I* :UINT;
+
+AI2_0 AT %I* :UINT;//temp new add
+AI2_1 AT %I* :UINT;
+AI2_2 AT %I* :UINT;
+AI2_3 AT %I* :UINT;
+
+
+AO0_0 AT %Q* :UINT;
+AO0_1 AT %Q* :UINT;
+AO0_2 AT %Q* :UINT;
+AO0_3 AT %Q* :UINT;
+
+GV1_CLS_DEVINP: BOOL;
+GV1_OPN_DEVINP: BOOL;
+GV1_OPN_CONST:REAL:=-10;
+
+GV2_CLS_DEVINP: BOOL;
+GV2_OPN_DEVINP: BOOL;
+GV2_OPN_CONST:REAL:=10;
+
+MFC1_open_btn:BOOL;
+MFC2_open_btn:BOOL;
+
+HTC_SetPos:WORD;
+HTC_SetPr:WORD;
+Rec_start_btn:BOOL;
+Rec_stop_btn:BOOL;
+
+//Recipt variable
+lv80_btn: BOOL;
+WSU_btn: BOOL;
+MFC1_Inp: REAL;
+MFC2_Inp: REAL;
+GV1_btn_open: BOOL;
+GV1_btn_close: BOOL;
+GV2_btn_open: BOOL;
+GV2_btn_close: BOOL;
+
+SV1 : WORD;
+SV2 : WORD;
+SV3 : WORD;
+
+Temp_Recipt_step: Recipt_step;
+
+M1TOM2:BOOL;
+M2ToM3:BOOL;
+M3ToM2:BOOL;
+M2ToM1:BOOL;
+ON_POS:BOOL;
+CUR_step_name:STRING(20);
+Rec_finish:BOOL;
+ON_POS_FLAG: BOOL;
+M2ToM1_flag: BOOL;
+M3ToM2_flag: BOOL;
+M2ToM3_flag: BOOL;
+M1ToM2_flag: BOOL;
+swing_btn:BOOL;
+take_up_btn:BOOL;
+put_down_btn:BOOL;
+Rec_take_up_finish:BOOL;
+Rec_put_down_finish:BOOL;
+M2_pressure_setting:REAL;
+M2_current_pressure:real;
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

@@ -1,0 +1,1130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="MOTION" Id="{4c53bbc1-42be-4d19-9054-a022ea790437}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MOTION
+VAR
+	init: BOOL;
+	Power_1: MC_Power;
+	Axis1: AXIS_REF;
+	Power_2: MC_Power;
+	Axis2: AXIS_REF;
+	Power_3: MC_Power;
+	Axis3: AXIS_REF;
+	
+	Pwr_En_1: BOOL;
+	Pwr1_Err: BOOL;
+	Pwr1_ErrId: UDINT;
+	MoveStop_1: MC_Stop;
+	MoveStop_2: MC_Stop;
+	MoveStop_3: MC_Stop;
+	stop_1: BOOL;
+	Axis1_Speed: INT;
+	Axis: INT;
+	Execute: INT;
+	Deceleration: INT;
+	Jerk: INT;
+	Options: INT;
+	Done: INT;
+	Busy: INT;
+	Active: INT;
+	CommandAborted: INT;
+	Error: INT;
+	ErrorID: BOOL;
+	MoveReset_1: INT;
+	reset_1: BOOL;
+	Jog_1: MC_Jog;
+
+	AxisReset_1: MC_Reset;
+	AxisReset_2: MC_Reset;
+	AxisReset_3: MC_Reset;
+	JForward: BOOL;
+	JBackward: BOOL;
+	EN_P: BOOL;
+	EN_N: BOOL;
+	Jv: LREAL;
+	JAcc: LREAL;
+	JDec: LREAL;
+	Jjerk: LREAL;
+	MoveVelocity_1: MC_MoveVelocity;
+	MoveVelocity_2: MC_MoveVelocity;
+	MoveVelocity_3: MC_MoveVelocity;
+	V_ex: BOOL;
+	VV: LREAL;
+	Halt_1: MC_Halt;
+	H_ex: BOOL;
+	MoveRelative_1: MC_MoveRelative;
+	R_ex: BOOL;
+	R_v: LREAL;
+	R_dis: LREAL;
+	Move_Absolute_1: MC_MoveAbsolute;
+	A_ex: BOOL;
+	A_pos: LREAL;
+	A_v: LREAL;
+	DIR1: bool;
+	VV1: LREAL:=100;
+	V_ex1: BOOL;
+
+	Pwr_En_2: BOOL;
+	stop_2: BOOL;
+	Axis2_Speed: INT;
+	reset_2: BOOL;
+	V_ex2: BOOL;
+	VV2: LREAL:=100;
+	Pwr_En_3: BOOL;
+	stop_3: BOOL;
+	Axis3_Speed: INT;
+	reset_3: BOOL;
+	V_ex3: BOOL;
+	VV3: LREAL:=100;
+	DIR2: BOOL;
+	DIR3: BOOL;
+	
+	car_M1toM2: BOOL;
+	motion_flag: BOOL;
+	M1toM2_ton: Ton;
+	M2Pos2_ftrig: f_trig;
+	M1R_Start_rtrig: R_trig;
+	car_M2toM1: BOOL;
+	M2Pos1_Rtrig: R_TRIG;
+	
+	car_M2toM3: BOOL;
+	car_M3toM2: BOOL;
+	M3Pos2_ftrig: F_TRIG;
+	M2Pos1_Ftrig: F_TRIG;
+	M12: BOOL;
+	M21: BOOL;
+	M23: BOOL;
+	M32: BOOL;
+	
+	LM_delay: TON;
+	LM_delay_trig: R_TRIG;
+	LM_Stop_delay: TON;
+	LM_Stop_delay_trig: R_TRIG;
+	LM_manual_flag: BOOL;
+	RM_manual_flag:BOOL;
+	RM_delay: TON;
+	RM_delay_trig: R_TRIG;
+	RM_Stop_delay: TON;
+	RM_Stop_delay_trig: R_TRIG;
+	LM_Stop_flag: BOOL;
+	RM_Stop_flag: BOOL;
+	MM1: BOOL;
+	MM23: BOOL;
+	
+	LM_GoLeft:BOOL;
+	LM_GoRight:BOOL;
+	RM_GoLeft:BOOL;
+	RM_GoRight:BOOL;
+	LM_Stop:BOOL;
+	RM_Stop:BOOL;
+	
+	MoveVelocity_func: MC_MoveVelocity;
+	swinging:BOOL;
+	swing_dir: BOOL;
+	swing_init:BOOL;
+	swing_velocity: UINT:=100;
+	swing_interlock:bool;
+	stop_swing: BOOL;
+	swing_enable:BOOL;
+	swing_ton1:TON;
+	swing_ton2:TON;
+	swing_trig1:R_TRIG;
+	swing_trig2:R_TRIG;
+	swing_stop_delay:TON;
+	swing_stop_trig:R_TRIG;
+	swing_start:BOOL;
+	swing_stop_Q: BOOL;
+	swing_trig2_Q: BOOL;
+	swing_ton1_in: BOOL;
+	swing_ton2_in: BOOL;
+	swing_stop_delay_in: BOOL;
+	swing_trig1_Q: BOOL;
+	swing_stop_flag: BOOL;
+	swing_ton2_PT: TIME:=T#0.8S;
+	swing_ton1_PT: TIME:=T#0.2S;
+	swing_stop_PT: time:=T#1s;
+	swing_stop_flag_time:TON;
+	swing_stop_flag_prs:R_TRIG;
+	prs_in: BOOL;
+	cur_step: INT;
+	step1_delay: TON;
+	step1_trig: R_TRIG;
+	step1_finish: BOOL;
+	step2_delay: TON;
+	step2_finish: BOOL;
+	step2_trig: R_TRIG;
+	Rec_MFC1: BOOL;
+	Rec_MFC2: BOOL;
+	step3_delay: TON;
+	step3_finish: BOOL;
+	step3_trig: R_TRIG;
+	Rec_MFC1_delay: TIME;
+	step4_delay: TON;
+	step4_trig: R_TRIG;
+	step4_finish: BOOL;
+	Rec_MFC2_delay: TIME;
+	step7_finish: BOOL;
+	step7_delay: TON;
+	step7_trig: R_TRIG;
+	
+	M1ToM2_delay: TON;
+	M1ToM2_trig: R_TRIG;
+	
+	ON_POS_delay: TON;
+	ON_POS_trig: R_TRIG;
+	
+	M2ToM3_delay: TON;
+	M2ToM3_trig: R_TRIG;
+	
+	M3ToM2_delay: TON;
+	M3ToM2_trig: R_TRIG;
+	
+	M2ToM1_delay: TON;
+	M2ToM1_trig: R_TRIG;
+	x: INT;
+	swing_Exe: BOOL;
+	Rec_finish_trig: R_TRIG;
+	Rec_finish_delay: TON;
+	Rec_finish_in: BOOL;
+	Rec_swing_stop: BOOL;
+	Rec_swing_trig: R_TRIG;
+	Rec_swing_stop_trig: R_TRIG;
+	Rec_swing_reset: BOOL;
+	Rec_swing_reset_delay:TON;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[manual();	
+
+	IF NOT init THEN
+		Pwr_En_1:=1;
+		Pwr_En_2:=1;
+		Pwr_En_3:=1;
+		init:=1;
+	END_IF
+
+IF DIR1 THEN
+	MoveVelocity_1.Direction:=MC_Positive_Direction;
+	ELSE
+	MoveVelocity_1.Direction:=MC_Negative_Direction;	
+END_IF
+IF DIR2 THEN
+	MoveVelocity_2.Direction:=MC_Negative_Direction;
+	ELSE
+	MoveVelocity_2.Direction:=MC_Positive_Direction;	
+END_IF
+
+IF DIR3 THEN
+	MoveVelocity_3.Direction:=MC_Positive_Direction;
+	ELSE
+	MoveVelocity_3.Direction:=MC_Negative_Direction;	
+END_IF
+
+
+Power_1(
+	Axis:=Axis1 , 
+	Enable:= Pwr_En_1, 
+	Enable_Positive:=1, 
+	Enable_Negative:=1, 
+	Override:= 100.0, 
+	BufferMode:= , 
+	Options:= , 
+	Status=> , 
+	Busy=> , 
+	Active=> , 
+	Error=> Pwr1_Err, 
+	ErrorID=>Pwr1_ErrId );
+
+MoveStop_1(
+	Axis:= Axis1, 
+	Execute:= stop_1,
+	Deceleration:= Axis1_Speed/10, 
+	Jerk:= , 
+	Options:= , 
+	Done=> , 
+	Busy=> , 
+	Active=> , 
+	CommandAborted=> , 
+	Error=> , 
+	ErrorID=> );
+
+AxisReset_1(
+	Axis:= Axis1, 
+	Execute:= reset_1, 
+	Done=> , 
+	Busy=> , 
+	Error=> , 
+	ErrorID=> );
+	
+MoveVelocity_1(
+	Axis:= Axis1, 
+	Execute:= V_ex1, 
+	Velocity:= VV1, 
+	Acceleration:= , 
+	Deceleration:= , 
+	Jerk:= , 
+	Direction:= , 
+	BufferMode:= , 
+	Options:= , 
+	InVelocity=> , 
+	Busy=> , 
+	Active=> , 
+	CommandAborted=> , 
+	Error=> , 
+	ErrorID=> );	
+Power_2(
+	Axis:=Axis2 , 
+	Enable:= Pwr_En_2, 
+	Enable_Positive:=1, 
+	Enable_Negative:=1, 
+	Override:= 100.0, 
+	BufferMode:= , 
+	Options:= , 
+	Status=> , 
+	Busy=> , 
+	Active=> , 
+	Error=> Pwr1_Err, 
+	ErrorID=>Pwr1_ErrId );
+
+MoveStop_2(
+	Axis:= Axis2, 
+	Execute:= stop_2,
+	Deceleration:= Axis2_Speed/10, 
+	Jerk:= , 
+	Options:= , 
+	Done=> , 
+	Busy=> , 
+	Active=> , 
+	CommandAborted=> , 
+	Error=> , 
+	ErrorID=> );
+
+AxisReset_2(
+	Axis:= Axis2, 
+	Execute:= reset_2, 
+	Done=> , 
+	Busy=> , 
+	Error=> , 
+	ErrorID=> );
+	
+MoveVelocity_2(
+	Axis:= Axis2, 
+	Execute:= V_ex2, 
+	Velocity:= VV2, 
+	Acceleration:= , 
+	Deceleration:= , 
+	Jerk:= , 
+	Direction:= , 
+	BufferMode:= , 
+	Options:= , 
+	InVelocity=> , 
+	Busy=> , 
+	Active=> , 
+	CommandAborted=> , 
+	Error=> , 
+	ErrorID=> );	
+	
+	Power_3(
+	Axis:=Axis3 , 
+	Enable:= Pwr_En_3, 
+	Enable_Positive:=1, 
+	Enable_Negative:=1, 
+	Override:= 100.0, 
+	BufferMode:= , 
+	Options:= , 
+	Status=> , 
+	Busy=> , 
+	Active=> , 
+	Error=> Pwr1_Err, 
+	ErrorID=>Pwr1_ErrId );
+
+MoveStop_3(
+	Axis:= Axis3, 
+	Execute:= stop_3,
+	Deceleration:= Axis3_Speed/10, 
+	Jerk:= , 
+	Options:= , 
+	Done=> , 
+	Busy=> , 
+	Active=> , 
+	CommandAborted=> , 
+	Error=> , 
+	ErrorID=> );
+
+AxisReset_3(
+	Axis:= Axis3, 
+	Execute:= reset_3, 
+	Done=> , 
+	Busy=> , 
+	Error=> , 
+	ErrorID=> );
+	
+MoveVelocity_3(
+	Axis:= Axis3, 
+	Execute:= V_ex3, 
+	Velocity:= VV3, 
+	Acceleration:= , 
+	Deceleration:= , 
+	Jerk:= , 
+	Direction:= , 
+	BufferMode:= , 
+	Options:= , 
+	InVelocity=> , 
+	Busy=> , 
+	Active=> , 
+	CommandAborted=> , 
+	Error=> , 
+	ErrorID=> );
+
+//mainbase button
+IF MAIN.M2_SNR1 AND MAIN.M2_SNR2 THEN
+	swing_enable:=1;
+ELSE
+	swing_enable:=0;
+END_IF
+
+IF (swinging = 1 AND (swing_enable = 1 OR swing_start = 1)) OR swing_btn THEN
+//IF swinging = 1 OR swing_btn = 1 THEN
+	Swinging_func();
+	swing_start:=1;
+	swing_stop_flag:=1;
+	prs_in:=0;
+ELSE
+	IF swing_stop_flag AND prs_in = 0 THEN
+		stop_1:=1;
+		swing_stop_flag:=0;
+		MoveVelocity_func.Execute:=False;
+		prs_in:=1;
+	END_IF
+	swing_start:=0;
+	swing_init:=0;
+END_IF
+swing_stop_flag_time(IN:=prs_in,PT:=T#0.05S,Q=>);
+swing_stop_flag_prs(CLK:=swing_stop_flag_time.Q,Q=>);
+IF swing_stop_flag_prs.Q THEN
+	stop_1:=0;
+	stop_swing:=0;
+	swing_ton1_in:=0;
+	swing_ton2_in:=0;
+	swing_Exe:=0;
+	swing_stop_delay_in:=0;
+END_IF
+
+(*
+//Recipe control swinging
+IF swing_btn = 1 THEN
+	Swinging_func();
+	swing_start:=1;
+	Rec_swing_stop:=0;
+ELSE
+	Rec_swing_stop:=1;
+END_IF
+Rec_swing_stop_trig(CLK:=Rec_swing_stop,Q=>);
+IF Rec_swing_stop_trig.Q THEN
+	stop_1:=1;
+	stop_swing:=1;
+	swing_Exe:=0;
+	Rec_swing_reset:=1;
+END_IF
+Rec_swing_reset_delay(IN:=Rec_swing_reset,PT:=T#0.1S,Q=>);
+Rec_swing_trig(CLK:=Rec_swing_reset_delay.Q,Q=>);
+IF Rec_swing_trig.Q = 1 THEN //常常FASLE
+	stop_1:=0;
+	stop_swing:=0;
+	swing_Exe:=0;
+	swing_ton1_in:=0;
+	swing_ton2_in:=0;
+	swing_stop_delay_in:=0;
+	swing_init:=0;
+	Rec_swing_reset:=0;
+END_IF
+*)
+Auto();
+	
+
+//Motion M1<>M2 M2<>M3
+(*  
+	IF car_M1toM2 THEN
+    stop_1:=0;  
+	stop_2:=0;
+    stop_3:=0;
+	DIR1:=0;
+	motion_flag:=1;
+	M12:=1;
+	END_IF
+	
+	IF car_M2toM1 THEN
+    stop_1:=0;  
+	stop_2:=0;
+	stop_3:=0;
+	DIR1:=1;
+	motion_flag:=1;
+	M21:=1;
+	END_IF
+
+	IF car_M2toM3 THEN
+    stop_1:=0;  
+	stop_2:=0;
+	stop_3:=0;
+	DIR1:=0;
+	DIR2:=1;
+	DIR3:=1;
+	motion_flag:=1;
+	M23:=1;
+	END_IF
+	
+	IF car_M3toM2 THEN
+    stop_1:=0;  
+	stop_2:=0;
+	stop_3:=0;
+	DIR1:=1;
+	DIR2:=0;
+	DIR3:=0;
+	motion_flag:=1;
+	M32:=1;
+	END_IF
+
+	M1toM2_ton(in:=motion_flag,pt:=T#1S,et=>,q=>);
+	M1R_Start_rtrig(CLK:=M1toM2_ton.Q,q=>);
+  
+	IF M1R_Start_rtrig.Q THEN
+		motion_flag:=0;
+		IF M32 OR M23 THEN 
+		  V_ex1:=1;
+		  V_ex2:=1; 
+		  V_ex3:=1;
+		ELSE
+		  V_ex1:=1;
+		END_IF	  
+	ELSE 
+	  V_ex1:=0; 
+	  V_ex2:=0; 
+	  V_ex3:=0;
+	END_IF
+  
+	IF M12 AND NOT DIR1 THEN
+	M2Pos2_ftrig(clk:=di0_2,q=>);
+	 IF  M2Pos2_ftrig.Q THEN
+	  M12:=0;
+	  stop_1:=1;
+	 ELSE
+	  stop_1:=0;  
+	 END_IF 
+	END_IF
+ 
+	IF M21 AND DIR1 THEN
+	 M2Pos1_Rtrig(clk:=di0_1,q=>);
+ 	 IF  NOT DI0_0 AND M2Pos1_Rtrig.Q THEN
+	 M21:=0;
+     stop_1:=1;
+	 ELSE
+	 stop_1:=0;  
+	 END_IF
+	END_IF
+  
+  // M2 TO M3 
+  
+	IF  M23 AND NOT DIR1 THEN
+ 		M3Pos2_ftrig(clk:=di0_4,q=>);
+		IF M3Pos2_ftrig.Q THEN
+			M23:=0;
+	 		stop_1:=1;
+	    	stop_2:=1;
+	    	stop_3:=1;
+		ELSE
+	 		stop_1:=0;  
+	    	stop_2:=0;
+	    	stop_3:=0;	
+		END_IF
+	END_IF
+ 
+	IF M32 AND  DIR1 THEN
+		M2Pos1_Ftrig(clk:=di0_1,q=>);
+		IF M2Pos1_Ftrig.Q THEN
+			M32:=0;
+			stop_1:=1;
+	   		stop_2:=1;
+	    	stop_3:=1;
+		ELSE
+			stop_1:=0;  
+			stop_2:=0;
+			stop_3:=0;
+		END_IF
+	END_IF
+  
+ *)
+]]></ST>
+    </Implementation>
+    <Action Name="Auto" Id="{16f327ce-30b9-4461-bbdf-3f31d87ae781}">
+      <Implementation>
+        <ST><![CDATA[//M1 to M2
+IF M1ToM2 = 1 THEN
+	stop_1:=0;  
+	DIR1:=0;
+	M1ToM2_flag:=1;
+END_IF
+
+//M1ToM2_delay(IN:=M1ToM2_flag,PT:=T#0.1S,Q=>);
+//M1ToM2_trig(CLK:=M1ToM2_delay.Q,Q=>);
+M1ToM2_trig(CLK:=M1ToM2_flag,Q=>);
+
+IF M1ToM2_trig.Q THEN
+	V_ex1:=1;
+END_IF
+
+//M2 to M3
+IF M2ToM3 = 1 THEN
+	stop_1:=0;
+	stop_2:=0;
+	stop_3:=0;
+	V_ex1:=0;
+	V_ex2:=0;
+	V_ex3:=0;
+	DIR1:=0;
+	DIR2:=1;
+	DIR3:=1;
+	M2ToM3_flag:=1;
+END_IF
+
+//M2ToM3_delay(IN:=M2ToM3_flag,PT:=T#0.1S,Q=>);
+//M2ToM3_trig(CLK:=M2ToM3_delay.Q,Q=>);
+M2ToM3_trig(CLK:=M2ToM3_flag,Q=>);
+
+IF M2ToM3_trig.Q THEN
+	V_ex1:=1;
+	V_ex2:=1;
+	V_ex3:=1;
+END_IF
+
+
+//M3 to M2
+IF M3ToM2 = 1 THEN
+	stop_1:=0;
+	stop_2:=0;
+	stop_3:=0;
+	DIR1:=1;
+	DIR2:=0;
+	DIR3:=0;
+	M3ToM2_flag:=1;
+END_IF
+
+//M3ToM2_delay(IN:=M3ToM2_flag,PT:=T#0.1S,Q=>);
+//M3ToM2_trig(CLK:=M3ToM2_delay.Q,Q=>);
+M3ToM2_trig(CLK:=M3ToM2_flag,Q=>);
+
+IF M3ToM2_trig.Q THEN
+	V_ex1:=1;
+	V_ex2:=1;
+	V_ex3:=1;
+END_IF
+
+//M2 to M1
+IF M2ToM1 = 1 THEN
+	stop_1:=0;  
+	DIR1:=1;
+	M2ToM1_flag:=1;
+END_IF
+
+//M2ToM1_delay(IN:=M2ToM1_flag,PT:=T#0.1S,Q=>);
+//M2ToM1_trig(CLK:=M2ToM1_delay.Q,Q=>);
+M2ToM1_trig(CLK:=M2ToM1_flag,Q=>);
+
+IF M2ToM1_trig.Q THEN
+	V_ex1:=1;
+END_IF
+
+IF GVL.ON_POS THEN
+	M1ToM2_flag:=0;
+	M2ToM3_flag:=0;
+	M3ToM2_flag:=0;
+	M2ToM1_flag:=0;
+	M1ToM2:=0;
+	M2ToM3:=0;
+	M3ToM2:=0;
+	M2ToM1:=0;
+	stop_1:=1;
+	stop_2:=1;
+	stop_3:=1;
+	V_ex1:=0;
+	V_ex2:=0;
+	V_ex3:=0;
+	ON_POS_FLAG:=1;
+END_IF
+
+//on position and reset
+ON_POS_delay(IN:=ON_POS_FLAG,PT:=T#0.1S,Q=>);
+ON_POS_trig(CLK:=ON_POS_delay.Q,Q=>);
+
+IF ON_POS_trig.Q THEN
+	//ON_POS:=0;
+	stop_1:=0;
+	stop_2:=0;
+	stop_3:=0;
+	ON_POS_FLAG:=0;
+END_IF
+
+IF Rec_finish THEN
+	V_ex1:=0;
+	V_ex2:=0;
+	V_ex3:=0;
+	Rec_finish_in:=1;
+	stop_1:=1;
+	stop_2:=1;
+	stop_3:=1;
+END_IF
+Rec_finish_delay(IN:=Rec_finish_in,PT:=T#0.2S,Q=>);
+Rec_finish_trig(CLK:=Rec_finish_delay.Q,Q=>);
+IF Rec_finish_trig.Q THEN
+	Rec_finish_in:=0;
+	stop_1:=0;
+	stop_2:=0;
+	stop_3:=0;
+END_IF]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="manual" Id="{d40b93f5-bb92-4e35-b863-d2d02f1645e7}">
+      <Implementation>
+        <ST><![CDATA[//M1 --> M2
+IF LM_GoRight = 1 AND MM1 = 0 THEN
+	stop_1:=0;  
+	DIR1:=0;
+	Lm_manual_flag:=1;
+	MM1:=1;
+END_IF
+//M2 --> M1
+IF LM_GoLeft = 1 AND MM1 = 0 THEN
+	stop_1:=0;  
+	DIR1:=1;
+	Lm_manual_flag:=1;
+	MM1:=1;
+END_IF
+
+LM_delay(IN:=Lm_manual_flag,PT:=T#0.1S,Q=>);
+LM_delay_trig(CLK:=LM_delay.Q,Q=>);
+
+IF LM_delay_trig.Q THEN
+	Lm_manual_flag:=0;
+	V_ex1:=1;
+END_IF
+
+//LM stop
+
+IF LM_Stop = 1 AND MM1 = 1 THEN
+	LM_GoLeft:=0;
+	LM_GoRight:=0;
+	LM_Stop_flag:=1;
+END_IF
+
+LM_Stop_delay(IN:=LM_Stop_flag,PT:=T#0.1S,Q=>);
+LM_Stop_delay_trig(CLK:=LM_Stop_delay.Q,Q=>);
+
+IF LM_Stop_delay_trig.Q = 1 THEN
+	LM_Stop_flag:=0;
+	V_ex1:=0;
+	stop_1:=1;
+	MM1:=0;
+END_IF
+
+//#####################################
+
+//M2 --> M3
+IF RM_GoRight = 1 AND MM23 = 0 THEN
+	stop_2:=0;
+	stop_3:=0;
+	DIR2:=1;
+	DIR3:=1;
+	Rm_manual_flag:=1;
+	MM23 := 1;
+END_IF
+//M3 --> M2
+IF RM_GoLeft = 1 AND MM23 = 0  THEN
+	stop_2:=0;
+	stop_3:=0;
+	DIR2:=0;
+	DIR3:=0;
+	Rm_manual_flag:=1;
+	MM23 := 1;
+END_IF
+
+RM_delay(IN:=Rm_manual_flag,PT:=T#0.1S,Q=>);
+RM_delay_trig(CLK:=RM_delay.Q,Q=>);
+
+IF RM_delay_trig.Q THEN
+	Rm_manual_flag:=0;
+	V_ex2:=1;
+	V_ex3:=1;
+END_IF
+
+//RM stop
+IF RM_Stop = 1 AND MM23 = 1 THEN
+	RM_GoRight:=0;
+	RM_GoLeft:=0;
+	RM_Stop_flag:=1;
+END_IF
+
+RM_Stop_delay(IN:=RM_Stop_flag,PT:=T#0.1S,Q=>);
+RM_Stop_delay_trig(CLK:=RM_Stop_delay.Q,Q=>);
+
+
+IF RM_Stop_delay_trig.Q = 1 THEN
+	RM_Stop_flag:=0;
+	V_ex2:=0;
+	V_ex3:=0;
+	stop_2:=1;
+	stop_3:=1;
+	MM23:=0;
+END_IF
+
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="Swinging_func" Id="{0ae8acf5-d66b-4002-a396-cd6007320f98}">
+      <Implementation>
+        <ST><![CDATA[MoveVelocity_func(
+	Axis:= Axis1, 
+	Execute:= swing_Exe, 
+	Velocity:= swing_velocity, 
+	Acceleration:= , 
+	Deceleration:= , 
+	Jerk:= , 
+	Direction:= , 
+	BufferMode:= , 
+	Options:= , 
+	InVelocity=> , 
+	Busy=> , 
+	Active=> , 
+	CommandAborted=> , 
+	Error=> , 
+	ErrorID=> );
+	
+MoveStop_1(
+	Axis:= Axis1, 
+	Execute:= stop_swing,
+	Deceleration:= Axis1_Speed/10, 
+	Jerk:= , 
+	Options:= , 
+	Done=> , 
+	Busy=> , 
+	Active=> , 
+	CommandAborted=> , 
+	Error=> , 
+	ErrorID=> );
+
+IF NOT swing_init THEN
+	MoveVelocity_func.Direction:=mc_positive_direction;// go right
+	swing_Exe:=TRUE;
+	swing_ton1_in:=TRUE;
+	swing_init:=1;
+	swing_dir:=1;
+END_IF
+
+swing_ton1(IN:=swing_ton1_in,PT:=swing_ton1_PT,Q=>);
+swing_ton2(IN:=swing_ton2_in,PT:=swing_ton2_PT,Q=>);
+swing_trig1(CLK:=swing_ton1.Q,Q=>swing_trig1_Q);
+swing_trig2(CLK:=swing_ton2.Q,Q=>swing_trig2_Q);
+swing_stop_delay(IN:=swing_stop_delay_in,PT:=swing_stop_PT,Q=>);
+swing_stop_trig(CLK:=swing_stop_delay.Q,Q=>swing_stop_Q);
+
+IF swing_trig1_Q = 1 THEN
+	swing_ton1_in:=FALSE;
+	stop_swing:=1;
+	swing_Exe:=FALSE;
+	swing_stop_delay_in:=TRUE;
+END_IF
+
+IF swing_stop_Q AND swing_init = 1 THEN
+	swing_dir:=NOT swing_dir;
+	IF swing_dir = 0 THEN
+		MoveVelocity_func.Direction:=mc_negative_direction;
+	ELSE
+		MoveVelocity_func.Direction:=mc_positive_direction;
+	END_IF
+	swing_stop_delay_in:=FALSE;
+	stop_swing:=0;
+	swing_ton2_in:=TRUE;
+	swing_Exe:=TRUE;
+END_IF
+
+IF swing_trig2_Q THEN
+	stop_swing:=1;
+	swing_ton2_in:=FALSE;
+	swing_Exe:=FALSE;
+	swing_stop_delay_in:=TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Action>
+    <LineIds Name="MOTION">
+      <LineId Id="1908" Count="0" />
+      <LineId Id="2165" Count="0" />
+      <LineId Id="1920" Count="0" />
+      <LineId Id="1918" Count="1" />
+      <LineId Id="1915" Count="0" />
+      <LineId Id="1921" Count="0" />
+      <LineId Id="1916" Count="0" />
+      <LineId Id="1914" Count="0" />
+      <LineId Id="135" Count="0" />
+      <LineId Id="139" Count="0" />
+      <LineId Id="141" Count="1" />
+      <LineId Id="140" Count="0" />
+      <LineId Id="390" Count="3" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="395" Count="4" />
+      <LineId Id="394" Count="0" />
+      <LineId Id="137" Count="1" />
+      <LineId Id="81" Count="32" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="114" Count="0" />
+      <LineId Id="117" Count="14" />
+      <LineId Id="115" Count="0" />
+      <LineId Id="276" Count="50" />
+      <LineId Id="144" Count="0" />
+      <LineId Id="334" Count="49" />
+      <LineId Id="333" Count="0" />
+      <LineId Id="2043" Count="0" />
+      <LineId Id="2297" Count="0" />
+      <LineId Id="2300" Count="1" />
+      <LineId Id="2446" Count="1" />
+      <LineId Id="2302" Count="0" />
+      <LineId Id="2299" Count="0" />
+      <LineId Id="2019" Count="0" />
+      <LineId Id="2664" Count="0" />
+      <LineId Id="2287" Count="0" />
+      <LineId Id="2312" Count="0" />
+      <LineId Id="2455" Count="0" />
+      <LineId Id="2476" Count="0" />
+      <LineId Id="2292" Count="0" />
+      <LineId Id="2459" Count="0" />
+      <LineId Id="2462" Count="0" />
+      <LineId Id="2460" Count="0" />
+      <LineId Id="2477" Count="0" />
+      <LineId Id="2474" Count="0" />
+      <LineId Id="2461" Count="0" />
+      <LineId Id="2313" Count="0" />
+      <LineId Id="2465" Count="0" />
+      <LineId Id="2288" Count="0" />
+      <LineId Id="2044" Count="0" />
+      <LineId Id="2468" Count="2" />
+      <LineId Id="2478" Count="2" />
+      <LineId Id="2667" Count="0" />
+      <LineId Id="2481" Count="0" />
+      <LineId Id="2471" Count="0" />
+      <LineId Id="3078" Count="1" />
+      <LineId Id="2855" Count="0" />
+      <LineId Id="2854" Count="0" />
+      <LineId Id="2856" Count="0" />
+      <LineId Id="2858" Count="0" />
+      <LineId Id="2866" Count="2" />
+      <LineId Id="2857" Count="0" />
+      <LineId Id="2863" Count="0" />
+      <LineId Id="3068" Count="1" />
+      <LineId Id="3071" Count="0" />
+      <LineId Id="3076" Count="0" />
+      <LineId Id="3072" Count="0" />
+      <LineId Id="3070" Count="0" />
+      <LineId Id="3075" Count="0" />
+      <LineId Id="2865" Count="0" />
+      <LineId Id="2870" Count="1" />
+      <LineId Id="2877" Count="0" />
+      <LineId Id="2873" Count="3" />
+      <LineId Id="2878" Count="0" />
+      <LineId Id="3077" Count="0" />
+      <LineId Id="2872" Count="0" />
+      <LineId Id="2024" Count="1" />
+      <LineId Id="2018" Count="0" />
+      <LineId Id="829" Count="0" />
+      <LineId Id="848" Count="0" />
+      <LineId Id="1010" Count="0" />
+      <LineId Id="1599" Count="0" />
+      <LineId Id="1601" Count="1" />
+      <LineId Id="1597" Count="0" />
+      <LineId Id="1603" Count="0" />
+      <LineId Id="1148" Count="0" />
+      <LineId Id="1548" Count="0" />
+      <LineId Id="1476" Count="0" />
+      <LineId Id="1759" Count="0" />
+      <LineId Id="1472" Count="0" />
+      <LineId Id="1604" Count="1" />
+      <LineId Id="1474" Count="0" />
+      <LineId Id="1606" Count="0" />
+      <LineId Id="1475" Count="0" />
+      <LineId Id="1550" Count="0" />
+      <LineId Id="1150" Count="0" />
+      <LineId Id="1760" Count="0" />
+      <LineId Id="1567" Count="0" />
+      <LineId Id="1607" Count="1" />
+      <LineId Id="1568" Count="0" />
+      <LineId Id="1609" Count="0" />
+      <LineId Id="1569" Count="4" />
+      <LineId Id="1764" Count="0" />
+      <LineId Id="1574" Count="0" />
+      <LineId Id="1610" Count="1" />
+      <LineId Id="1575" Count="0" />
+      <LineId Id="1612" Count="0" />
+      <LineId Id="1576" Count="2" />
+      <LineId Id="1580" Count="0" />
+      <LineId Id="1566" Count="0" />
+      <LineId Id="1151" Count="2" />
+      <LineId Id="1763" Count="0" />
+      <LineId Id="1762" Count="0" />
+      <LineId Id="1591" Count="0" />
+      <LineId Id="1581" Count="0" />
+      <LineId Id="1585" Count="5" />
+      <LineId Id="1583" Count="1" />
+      <LineId Id="1592" Count="1" />
+      <LineId Id="1761" Count="0" />
+      <LineId Id="1565" Count="0" />
+      <LineId Id="1160" Count="2" />
+      <LineId Id="1329" Count="0" />
+      <LineId Id="1164" Count="3" />
+      <LineId Id="1330" Count="0" />
+      <LineId Id="1477" Count="0" />
+      <LineId Id="1479" Count="2" />
+      <LineId Id="1483" Count="0" />
+      <LineId Id="1552" Count="0" />
+      <LineId Id="1484" Count="1" />
+      <LineId Id="1478" Count="0" />
+      <LineId Id="1168" Count="0" />
+      <LineId Id="1487" Count="2" />
+      <LineId Id="1509" Count="2" />
+      <LineId Id="1557" Count="0" />
+      <LineId Id="1513" Count="0" />
+      <LineId Id="1537" Count="1" />
+      <LineId Id="1907" Count="0" />
+      <LineId Id="1515" Count="0" />
+      <LineId Id="1539" Count="1" />
+      <LineId Id="1516" Count="4" />
+      <LineId Id="1559" Count="0" />
+      <LineId Id="1542" Count="0" />
+      <LineId Id="1560" Count="0" />
+      <LineId Id="1543" Count="4" />
+      <LineId Id="1524" Count="1" />
+      <LineId Id="1491" Count="0" />
+      <LineId Id="1333" Count="1" />
+      <LineId Id="985" Count="0" />
+    </LineIds>
+    <LineIds Name="MOTION.Auto">
+      <LineId Id="87" Count="0" />
+      <LineId Id="1" Count="1" />
+      <LineId Id="4" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="3" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="152" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="88" Count="0" />
+      <LineId Id="47" Count="1" />
+      <LineId Id="52" Count="1" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="167" Count="2" />
+      <LineId Id="54" Count="3" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="59" Count="1" />
+      <LineId Id="58" Count="0" />
+      <LineId Id="153" Count="0" />
+      <LineId Id="62" Count="4" />
+      <LineId Id="61" Count="0" />
+      <LineId Id="67" Count="1" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="70" Count="11" />
+      <LineId Id="154" Count="0" />
+      <LineId Id="82" Count="4" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="89" Count="0" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="113" Count="7" />
+      <LineId Id="155" Count="0" />
+      <LineId Id="121" Count="2" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="41" Count="2" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="19" Count="2" />
+      <LineId Id="165" Count="1" />
+      <LineId Id="164" Count="0" />
+      <LineId Id="126" Count="2" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="112" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="124" Count="0" />
+      <LineId Id="34" Count="1" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="130" Count="0" />
+      <LineId Id="129" Count="0" />
+      <LineId Id="133" Count="1" />
+      <LineId Id="131" Count="0" />
+      <LineId Id="140" Count="0" />
+      <LineId Id="148" Count="1" />
+      <LineId Id="141" Count="0" />
+      <LineId Id="132" Count="0" />
+      <LineId Id="139" Count="0" />
+      <LineId Id="138" Count="0" />
+      <LineId Id="142" Count="1" />
+      <LineId Id="150" Count="1" />
+      <LineId Id="147" Count="0" />
+      <LineId Id="144" Count="0" />
+    </LineIds>
+    <LineIds Name="MOTION.manual">
+      <LineId Id="2" Count="23" />
+      <LineId Id="30" Count="2" />
+      <LineId Id="99" Count="0" />
+      <LineId Id="33" Count="45" />
+      <LineId Id="100" Count="0" />
+      <LineId Id="79" Count="1" />
+      <LineId Id="86" Count="12" />
+      <LineId Id="101" Count="0" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="MOTION.Swinging_func">
+      <LineId Id="34" Count="14" />
+      <LineId Id="1" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="51" Count="10" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="63" Count="1" />
+      <LineId Id="66" Count="0" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="72" Count="0" />
+      <LineId Id="130" Count="0" />
+      <LineId Id="144" Count="0" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="117" Count="5" />
+      <LineId Id="116" Count="0" />
+      <LineId Id="91" Count="1" />
+      <LineId Id="101" Count="0" />
+      <LineId Id="93" Count="0" />
+      <LineId Id="131" Count="0" />
+      <LineId Id="94" Count="0" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="85" Count="0" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="137" Count="4" />
+      <LineId Id="123" Count="0" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="103" Count="0" />
+      <LineId Id="89" Count="0" />
+      <LineId Id="113" Count="0" />
+      <LineId Id="88" Count="0" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="97" Count="0" />
+      <LineId Id="99" Count="0" />
+      <LineId Id="104" Count="0" />
+      <LineId Id="129" Count="0" />
+      <LineId Id="105" Count="0" />
+      <LineId Id="100" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

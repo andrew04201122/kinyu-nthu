@@ -1,0 +1,1802 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="MAIN" Id="{f66326ab-3b57-4942-a410-6bbe92e62bd7}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	MbMster: ModbusRtuMaster_KL6x22B;
+	Mb_ID: BYTE;
+	MbR_Q: WORD;
+	MbR_Addr: WORD;
+	Data_Read : ARRAY[1..8] OF INT;
+	Data_Write : WORD;
+	En_Read : BOOL;
+    En_Write : BOOL;	
+	MbW_Addr: WORD;
+	
+	PV1 : INT;
+	PV2 : INT;
+	PV3 : INT;
+	
+	
+	
+	nVar: INT;
+	bVar1: BOOL;
+	bVar3: BOOL;
+	bVar2: BOOL;
+	
+	TTR91_U_CG1: LREAL;
+	TTR91_P_CG1: LREAL;
+	TTR91_C: REAL:=6.304;
+	temp_CG1: LREAL;
+	temp_string_CG1:STRING(255);
+	strlen_CG1:INT;
+	str1_CG1:STRING(255);
+	str2_CG1:STRING(255);
+	show_CG1:STRING(255);
+	aSplit_CG1       : ARRAY[1..5] OF STRING(255);
+	bResultSplit_CG1 : BOOL;
+	i_CG1            : UDINT;
+	
+	TTR91_U_CG2: LREAL;
+	TTR91_P_CG2: LREAL;
+	temp_CG2: LREAL;
+	temp_string_CG2:STRING(255);
+	strlen_CG2:INT;
+	str1_CG2:STRING(255);
+	str2_CG2:STRING(255);
+	show_CG2:STRING(255);
+	aSplit_CG2       : ARRAY[1..5] OF STRING(255);
+	bResultSplit_CG2 : BOOL;
+	i_CG2            : UDINT;
+	
+	TTR91_U_CG3: LREAL;
+	TTR91_P_CG3: LREAL;
+	temp_CG3: LREAL;
+	temp_string_CG3:STRING(255);
+	strlen_CG3:INT;
+	str1_CG3:STRING(255);
+	str2_CG3:STRING(255);
+	show_CG3:STRING(255);
+	aSplit_CG3       : ARRAY[1..5] OF STRING(255);
+	bResultSplit_CG3 : BOOL;
+	i_CG3            : UDINT;
+		
+
+	ATM1_dis: REAL;
+	ATM2_dis: REAL;
+	ATM3_dis: REAL;
+	MFC1_dis: REAL;
+	MFC2_dis: REAL;
+	
+	MFC1_Out: UINT;
+	MFC2_Out: uINT;
+	
+	
+
+	
+	WSU_DEVINP: BOOL;
+	RST_BTN: BOOL;
+	ALM_PUMP_COOL: BOOL;
+	ALM_MFC1_DEV: BOOL;
+	ALM_MFC2_DEV: BOOL;
+	ALM_WATER_TEMP: BOOL;
+	ALM_WATER_Prs: BOOL;
+	ALM_Heater1_Temp:BOOL;
+	ALM_Heater2_Temp:BOOL;
+	ALM_Heater_cool:BOOL;
+	ALM_GV1_Snr:BOOL;
+	ALM_GV2_Snr:BOOL;
+	ALM_inlet_prs:BOOL;
+	
+	MFC_ALM_TIMER1:TON;
+	MFC_ALM_TIMER2:TON;
+	WTR_TEMP_ALM_TIMER:TON;
+	WP_IN_ALM_TIMER:Ton;
+	WTR_DELTA_ALM_TIMER:Ton;
+	HEATER_TEMP_ALM_TIMER1:Ton;
+	HEATER_TEMP_ALM_TIMER2:Ton;
+	
+	MFC_ALM_TRIG1:R_TRIG;
+	MFC_ALM_TRIG2:R_TRIG;
+	WTR_TEMP_ALM_TRIG:R_TRIG;
+	WP_IN_ALM_TRIG:R_TRIG;
+	WTR_DELTA_ALM_TRIG:R_TRIG;
+	HEATER_TEMP_ALM_TRIG1:R_TRIG;
+	HEATER_TEMP_ALM_TRIG2:R_TRIG;
+	
+	MFC_ALM_FLAG1:BOOL;
+	MFC_ALM_FLAG2:BOOL;
+	WTR_TEMP_ALM_FLAG:BOOL;
+	WP_IN_ALM_FLAG:BOOL;
+	WTR_DELTA_ALM_FLAG:BOOL;
+	HEATER_TEMP_ALM_FLAG1:BOOL;
+	HEATER_TEMP_ALM_FLAG2:BOOL;
+	
+	
+	MFC_delay:TIME;
+	water_temp_delay:TIME;
+	WP_IN_delay:TIME;
+	WP_delta_delay:TIME;
+	Heater_temp_delay:TIME;
+	
+	GV1_DFLAG: BOOL;
+	GV1_TON: TON;
+	ALM_GV1_CLS_SNR: BOOL;
+	GV2_DFLAG: BOOL;
+	GV2_TON: TON;
+	ALM_GV2_CLS_SNR: BOOL;
+	MbMster2: ModbusRtuMaster_KL6x22B;
+	Data_Read2:ARRAY[1..8] OF INT;
+	MbR_Q2: WORD;
+	MbR_Addr2: WORD;
+	En_Read2: BOOL;
+	nVar2: INT;
+	ADDR2: WORD; 
+	En_Write2: BOOL;
+	MbW_Addr2: WORD;
+	Data_Write2: WORD;
+	
+	m3_up_btn:BOOL;
+	m3_down_btn:BOOL;
+	m3_rail_open:BOOL;
+	m3_rail_cls:BOOL;
+	m3_pin_up:BOOL;
+	m3_pin_down:BOOL;
+	
+	m3_up_flag: BOOL;
+	m3_down_flag: BOOL;
+	up_step1: BOOL;
+	up_step2: BOOL;
+	M3_rail_opened: BOOL;
+	up_step3: BOOL;
+	up_step4: BOOL;
+	up_step5: BOOL;
+	down_step1: BOOL;
+	down_step2: BOOL;
+	down_step3: BOOL;
+	down_step4: BOOL;
+	M3_rail_closed: BOOL;
+	HTC_ReadPos: INT;
+	HTC_ReadPr: INT;
+	//HTC_SetPr: WORD;
+	HTC_MODE_Pr : BOOL;
+	//HTC_SetPos: WORD;
+	
+	cur_mode:STRING(255);
+	
+	M1_sNR: BOOL;
+	M2_SNR1: BOOL;
+	M2_SNR2: BOOL;
+	M3_SNR1: BOOL;
+	M3_SNR2: BOOL;
+	M3_SNR3: BOOL;
+	mfc1_set: REAL;
+	mfc2_set: REAL;
+	M3_rail_CLOSE: BOOL;
+	ATM1_STS: BOOL;
+	ATM2_STS: BOOL;
+	ATM3_STS: BOOL;
+	LV80_STS: BOOL;
+	WSU_STS: bool;
+	TV_STS: BOOL;
+	
+	GetTime:NT_GetTime;
+	cur_time:STRING(255);
+	
+	reset_btn:BOOL;
+	insert_btn:bool;
+
+	Rec_Ctrl:Rec_Ctrl;
+	Copy_step:BOOL;
+	Copy_recipe:BOOL;
+	cur_step:INT:=1;
+	cur_Rec:INT:=1;
+	
+	save_step_btn: BOOL;
+	clear_step_btn:BOOL;
+	//edit_step_btn:BOOL;	
+	pre_step:INT:=1;
+	pre_recipe:INT:=1;
+	Rec_finish_delay: TON;
+	Rec_finish_trig: R_TRIG;
+	take_up_action: BOOL;
+	put_down_action: BOOL;
+	Rec_stop: BOOL;
+	Rec_stop_btn_delay: TON;
+	put_down_reset_action: TON;
+	put_down_action_reset_in: BOOL;
+	take_up_action_reset_in: BOOL;
+	take_up_reset_action: TON;
+	i: INT;
+	j: INT;
+	recipe_varible_reset_btn: BOOL;
+
+	q: INT:=30;
+	insert_delay:TON;
+	insert_in:BOOL;
+	insert_during: BOOL;
+	insert_finish: BOOL;
+END_VAR
+
+
+VAR RETAIN
+    MFC_delay_show:UINT;
+	water_temp_delay_show:UINT;
+	WP_IN_delay_show:UINT;
+	WP_delta_delay_show:UINT;
+	Heater_temp_delay_show:UINT;
+	MFC_alarm_setting:REAL;
+	water_temp_setting:REAL;
+	WP_IN_setting:REAL;
+	WP_delta_setting:REAL;
+	Heater_temp_seeting:REAL;
+	Full_recipt: ARRAY [1..10] OF One_Recipt;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CASE nVar OF 
+     0 : 
+		 En_Read := FALSE;
+         En_Write := FALSE;	 
+         IF NOT MbMster.BUSY AND NOT En_Write THEN
+		   nVar := 1;	
+		 END_IF
+	 1 :
+	     Mb_ID := 1;
+		 MbR_Q := 1;
+		 MbR_Addr := 130;
+		 En_Read := TRUE;
+         IF NOT MbMster.BUSY AND En_Read THEN
+		   PV3 := MAIN.Data_Read[1]; 
+		   nVar := 2;	
+		 END_IF
+
+     2 : 
+	 
+		 En_Read := FALSE;
+         En_Write := FALSE;
+         IF NOT MbMster.BUSY AND NOT En_Read  THEN
+		   nVar := 3;	
+		 END_IF
+	 3 :
+	     Mb_ID := 2;
+		 MbR_Q := 1;
+		 MbR_Addr := 130;
+		 En_Read := TRUE;
+         IF NOT MbMster.BUSY AND En_Read  THEN
+		   PV1 := MAIN.Data_Read[1];				 
+		   nVar := 4;	
+		 END_IF	    
+     4 : 
+
+		 En_Read := FALSE;
+         En_Write := FALSE;
+         IF NOT MbMster.BUSY AND NOT En_Read  THEN
+		   nVar := 5;	
+		 END_IF
+	 5 :
+	     Mb_ID := 3;
+		 MbR_Q := 1;
+		 MbR_Addr := 130;
+		 En_Read := TRUE;
+         IF NOT MbMster.BUSY AND En_Read  THEN
+		   PV2 := MAIN.Data_Read[1];			 
+		   nVar := 6;	
+		 END_IF	 
+     6 : 
+	 
+         MAIN.Data_Write := SV1;		 
+		 En_Read := FALSE;
+         En_Write := FALSE;
+         IF NOT MbMster.BUSY AND NOT En_Read  THEN
+		   nVar := 7;	
+		 END_IF
+	 7 :
+	     Mb_ID := 1;
+		 MbW_Addr := 49;
+		 En_Write := TRUE;
+         IF NOT MbMster.BUSY AND En_Write  THEN
+		   nVar := 8;	
+		 END_IF
+     8 : 
+		 En_Read := FALSE;
+         En_Write := FALSE;
+         MAIN.Data_Write := SV2;		 
+         IF NOT MbMster.BUSY  AND NOT En_Write  THEN
+		   nVar := 9;	
+		 END_IF
+	 9 :
+	     Mb_ID := 2;
+		 MbW_Addr := 49;
+		 En_Write := TRUE;
+         IF NOT MbMster.BUSY  AND En_Write  THEN
+		   nVar := 10;	
+		 END_IF
+     10 : 
+		 En_Read := FALSE;
+         En_Write := FALSE;
+		 MAIN.Data_Write := SV3;
+         IF NOT MbMster.BUSY  AND NOT En_Write  THEN
+		   nVar := 11;	
+		 END_IF
+	 11 :
+	     Mb_ID := 3;
+		 MbW_Addr := 49;
+		 En_Write := TRUE;
+         IF NOT MbMster.BUSY  AND En_Write  THEN
+		   nVar := 0;	
+		 END_IF  	 
+
+
+//ELSE 
+		 //nVar := 0;
+         //bVar1 := NOT bVar1; 
+         //bVar2 := bVar1 OR bVar2; 
+END_CASE;	
+
+
+MbMster.ReadRegs(
+	UnitID:= Mb_ID, 
+	Quantity:= MbR_Q,
+	MBAddr:= MbR_Addr, 
+	cbLength:= SIZEOF(Data_Read), 
+	pMemoryAddr:= ADR(Data_Read), 
+	Execute:= En_Read, 
+	Timeout:= T#10S, 
+	BUSY=> , 
+	Error=> , 
+	ErrorId=> , 
+	cbRead=> );
+
+MbMster.WriteRegs(
+	UnitID:= Mb_ID, 
+	Quantity:= 1, 
+	MBAddr:= MbW_Addr, 
+	cbLength:= SIZEOF(Data_Write), 
+	pMemoryAddr:= ADR(Data_Write), 
+	Execute:= En_Write, 
+	Timeout:= T#10S, 
+	BUSY=> , 
+	Error=> , 
+	ErrorId=> , 
+	cbRead=> );	
+	
+//============= RS485 CH2	
+
+CASE nVar2 OF 
+     0 : 
+		 En_Read2 := FALSE;
+         En_Write2 := FALSE;	 
+         IF NOT MbMster2.BUSY  AND NOT En_Read2 THEN
+		   nVar2 := 1;	
+		 END_IF
+	 1 :
+	     //Mb_ID := 1;
+		 MbR_Q2 := 1;
+		 MbR_Addr2 := 263;//259;
+		 En_Read2 := TRUE;
+         IF NOT MbMster2.BUSY  AND   En_Read2 THEN
+			 HTC_ReadPos := MAIN.Data_Read2[1];
+		     nVar2 := 2;	
+		 END_IF
+	 2 : 
+	   	 //MbW_Addr2 := WADDR2;
+		 En_Read2 := FALSE;
+		 En_Write2 := FALSE;
+         IF NOT MbMster2.BUSY AND NOT En_Read2 THEN
+		   nVar2 := 3;	
+		 END_IF
+	 3 :
+	     //Mb_ID := 1;
+		 //MbR_Q2 := 1;
+		 IF HTC_MODE_Pr THEN
+			HTC_SetPos :=0; 
+		 END_IF
+		 MAIN.Data_Write2 := HTC_SetPos;
+		 MbW_Addr2 := 260;
+		 En_Write2 := TRUE;
+         IF NOT MbMster2.BUSY  AND   En_Write2 THEN
+		     nVar2 := 4;	
+		 END_IF
+	 4 : 
+	   	 //MbW_Addr2 := WADDR2;
+		 En_Read2 := FALSE;
+		 En_Write2 := FALSE;
+         IF NOT MbMster2.BUSY AND NOT En_Write2 THEN
+		   nVar2 := 5;	
+		 END_IF		 		 
+	 5 :
+	     //Mb_ID := 1;
+		 MbR_Q2 := 1;
+		 MbR_Addr2 := 259;//263;
+		 En_Read2 := TRUE;
+         IF NOT MbMster2.BUSY  AND   En_Read2 THEN
+			 HTC_ReadPr := MAIN.Data_Read2[1];
+		     nVar2 := 6;	
+		 END_IF
+	 6 : 
+	   	 //MbW_Addr2 := WADDR2;
+		 En_Read2 := FALSE;
+		 En_Write2 := FALSE;
+         IF NOT MbMster2.BUSY AND NOT En_Read2 THEN
+		   nVar2 := 7;	
+		 END_IF
+	 7 :
+	     //Mb_ID := 1;
+		 //MbR_Q2 := 1;
+		 IF NOT HTC_MODE_Pr THEN
+			 HTC_SetPr := 0;
+		 END_IF
+		 MAIN.Data_Write2 := HTC_SetPr;
+		 MbW_Addr2 := 1123;
+		 En_Write2 := TRUE;
+         IF NOT MbMster2.BUSY  AND   En_Write2 THEN
+		     nVar2 := 8;	
+		 END_IF
+	 8 : 
+	   	 //MbW_Addr2 := WADDR2;
+		 En_Read2 := FALSE;
+		 En_Write2 := FALSE;
+         IF NOT MbMster2.BUSY AND NOT En_Write2 THEN
+		   nVar2 := 0;	
+		 END_IF		 		 
+		 
+END_CASE;
+
+
+MbMster2.ReadRegs(
+	UnitID:= 1, 
+	Quantity:= MbR_Q2, 
+	MBAddr:= MbR_Addr2, 
+	cbLength:= SIZEOF(Data_Read2), 
+	pMemoryAddr:= ADR(Data_Read2), 
+	Execute:= En_Read2, 
+	Timeout:= T#10S, 
+	BUSY=> , 
+	Error=> , 
+	ErrorId=> , 
+	cbRead=> );
+
+	MbMster2.WriteRegs(
+	UnitID:= 1, 
+	Quantity:= 1, 
+	MBAddr:= MbW_Addr2, 
+	cbLength:= SIZEOF(Data_Write2), 
+	pMemoryAddr:= ADR(Data_Write2), 
+	Execute:= En_Write2, 
+	Timeout:= T#10S, 
+	BUSY=> , 
+	Error=> , 
+	ErrorId=> , 
+	cbRead=> );	
+
+
+//=========================
+CG1_trans();
+CG2_trans();
+CG3_trans();
+interlock();
+valve_control();
+//ALARM();
+snr_status();
+
+
+IF insert_btn  = 1  THEN
+	step_insert();
+END_IF
+
+IF insert_finish THEN
+	insert_btn:=0;
+	insert_finish:=0;
+END_IF
+
+IF Rec_stop_btn THEN
+	Rec_stop:=1;
+	REC_func();	
+END_IF
+Rec_stop_btn_delay(IN:=Rec_stop,PT:=T#0.1S,Q=>);
+IF Rec_stop_btn_delay.Q THEN
+	REC_func();	
+	Rec_stop:=0;
+	Rec_finish:=1;
+END_IF
+
+IF Rec_start_btn THEN
+	REC_func();
+END_IF
+
+IF Rec_finish = 1 THEN
+	Rec_reset();	
+END_IF
+
+IF Rec_finish_trig.Q THEN
+	Rec_finish:=0;
+END_IF
+
+Rec_finish_delay(IN:=Rec_finish,PT:=T#0.1S,Q=>);
+Rec_finish_trig(CLK:=Rec_finish_delay.Q,Q=>);
+
+//ATM
+
+	ATM1_dis:= 100*((UINT_TO_REAL(ai0_0)-19660)/13106);
+	ATM2_dis:= 100*((UINT_TO_REAL(ai0_1)-19660)/13106);
+	ATM3_dis:= 100*((UINT_TO_REAL(ai0_2)-19660)/13106);
+
+//MFC1 1SLM  MFC 100SLM
+
+    MFC1_dis:=1000*(UINT_TO_REAL(ai1_2)/32767);
+	MFC2_dis:=100*(UINT_TO_REAL(ai1_3)/32767);	
+	
+	IF mfc1_open_btn THEN     //2022 0923 modify
+		mfc1_set:=MFC1_Inp;
+		ELSE
+		mfc1_set:=0;
+	END_IF
+	
+	IF mfc2_open_btn THEN
+		mfc2_set:=MFC2_Inp;
+		ELSE
+		mfc2_set:=0;
+	END_IF
+	
+	MFC1_Out:=REAL_TO_UINT(mfc1_set/1000*32767);
+	MFC2_Out:=REAL_TO_UINT(mfc2_set/100*32767);
+	ao0_2:=MFC1_Out;
+    ao0_3:=MFC2_Out;
+	
+IF HTC_MODE_Pr = 1 THEN
+	cur_mode:='Pos mode';
+ELSE
+	cur_mode:='Pr mode';
+END_IF
+
+IF GetTime.START AND NOT GetTime.BUSY THEN
+	GetTime.START:=FALSE;
+ELSE
+	GetTime.START:=TRUE;
+END_IF
+
+GetTime(
+	NETID:= '',
+	START:= ,
+	TMOUT:= ,
+	BUSY=> ,
+	ERR=>,
+	ERRID=>,
+	TIMESTR=>
+);
+cur_time:=CONCAT(WORD_TO_STRING(GetTime.TIMESTR.wHour),':');
+cur_time:=CONCAT(cur_time,WORD_TO_STRING(GetTime.TIMESTR.wMinute));
+cur_time:=CONCAT(cur_time,':');
+cur_time:=CONCAT(cur_time,WORD_TO_STRING(GetTime.TIMESTR.wSecond));
+
+IF save_step_btn THEN
+	pre_step:=cur_step;
+	pre_recipe:=cur_REC;
+	Full_Recipt[cur_Rec].Rec_array[cur_step]:=Temp_Recipt_step;
+END_IF
+
+IF pre_step <> cur_step THEN
+	Temp_Recipt_step:=Full_Recipt[cur_Rec].Rec_array[cur_step];
+	pre_step:=cur_step;
+END_IF
+
+IF pre_recipe <> cur_REC THEN
+	Temp_Recipt_step:=Full_Recipt[cur_Rec].Rec_array[cur_step];
+	pre_recipe:=cur_rec;
+END_IF
+
+IF Copy_step AND cur_Step <> 1 THEN
+	Temp_Recipt_step:=Full_Recipt[cur_Rec].Rec_array[cur_step-1];
+END_IF
+
+IF Copy_recipe AND cur_Rec <> 1 THEN
+	Full_Recipt[cur_Rec]:=Full_Recipt[cur_Rec-1];
+	Temp_Recipt_step:=Full_Recipt[cur_Rec].Rec_array[cur_step];
+END_IF
+
+IF clear_step_btn = 1 THEN
+	Temp_Recipt_step.delay:=0;
+	Temp_Recipt_step.GV1:=0;
+	Temp_Recipt_step.GV2:=0;
+	Temp_Recipt_step.LV80:=0;
+	Temp_Recipt_step.M1toM2:=0;
+	Temp_Recipt_step.M2_pressure_setting:=0;
+	Temp_Recipt_step.M2toM1:=0;
+	Temp_Recipt_step.M2toM3:=0;
+	Temp_Recipt_step.M3_pressure_setting:=0;
+	Temp_Recipt_step.M3toM2:=0;
+	Temp_Recipt_step.MFC1_button:=0;
+	Temp_Recipt_step.MFC1_Setting:=0;
+	Temp_Recipt_step.MFC2_button:=0;
+	Temp_Recipt_step.MFC2_Setting:=0;
+	Temp_Recipt_step.NC1:=0;
+	Temp_Recipt_step.NC2:=0;
+	Temp_Recipt_step.NC3:=0;
+	Temp_Recipt_step.NC4:=0;
+	Temp_Recipt_step.NC5:=0;
+	Temp_Recipt_step.NC6:=0;
+	Temp_Recipt_step.NC7:=0;
+	Temp_Recipt_step.NC8:=0;
+	Temp_Recipt_step.NC9:=0;
+	Temp_Recipt_step.Position_setting:=0;
+	Temp_Recipt_step.RV1:=0;
+	Temp_Recipt_step.RV2:=0;
+	Temp_Recipt_step.Set2Pos:=0;
+	Temp_Recipt_step.step_Name:='';
+	Temp_Recipt_step.VENT2:=0;
+	Temp_Recipt_step.WSU251:=0;
+	Temp_Recipt_step.Swing:=0;
+	Temp_Recipt_step.Take_up:=0;
+	Temp_Recipt_step.Put_down:=0;
+	Temp_Recipt_step.VB4:=0;
+	Temp_Recipt_step.VENT3:=0;
+END_IF
+(*
+IF edit_step_btn THEN
+	Temp_Recipt_step:=Full_Recipt[cur_Rec].Rec_array[cur_step];
+END_IF
+*)
+
+IF Rec_stop_btn THEN
+	Rec_start_btn:=0;
+END_IF
+
+IF recipe_varible_reset_btn THEN
+	Recipe_variable_reset();
+END_IF
+
+M2_current_pressure:=ATM1_dis;]]></ST>
+    </Implementation>
+    <Action Name="ALARM" Id="{aac95767-3f03-4480-bbdf-7fb6f2b65ddd}">
+      <Implementation>
+        <ST><![CDATA[//PUMP COOLING WATER
+
+IF DO3_6 AND NOT di1_4 THEN	
+	ALM_PUMP_COOL:=1;
+END_IF
+
+
+
+// inlet pressure
+
+IF NOT di1_7 THEN 
+	ALM_inlet_prs:=1;
+	ELSE
+	ALM_inlet_prs:=0;	
+END_IF
+
+
+
+//GV1
+IF GV1_btn_close THEN
+	GV1_DFLAG:=1;
+END_IF
+
+GV1_TON(IN:=GV1_DFLAG,PT:=T#3S,Q=>,ET=>);
+IF GV1_TON.Q AND NOT DI2_0 THEN
+	ALM_GV1_CLS_SNR:=1;
+END_IF
+
+IF GV1_btn_OPEN THEN
+	GV1_DFLAG:=0;
+END_IF
+
+
+//GV2
+
+IF GV2_btn_close THEN
+	GV2_DFLAG:=1;
+END_IF
+
+GV2_TON(IN:=GV2_DFLAG,PT:=T#3S,Q=>,ET=>);
+IF GV2_TON.Q AND NOT DI2_2 THEN
+	ALM_GV2_CLS_SNR:=1;
+END_IF
+
+IF GV2_btn_OPEN THEN
+	GV2_DFLAG:=0;
+END_IF
+
+
+
+//Light Tower
+
+IF ALM_PUMP_COOL OR ALM_inlet_prs OR ALM_GV1_CLS_SNR OR ALM_GV2_CLS_SNR THEN
+	DO1_4:=0;
+	DO1_7:=0;
+END_IF
+
+
+
+// RST BUTTON
+IF RST_BTN THEN
+	DO1_4:=1;
+	DO1_7:=1;
+	ALM_PUMP_COOL:=0;
+	ALM_inlet_prs:=0;
+	ALM_GV1_CLS_SNR:=0;
+	ALM_GV2_CLS_SNR:=0;
+END_IF
+
+//alarm delay setting
+MFC_delay:=UINT_TO_TIME(MFC_delay_show)*1000;
+water_temp_delay:=UINT_TO_TIME(water_temp_delay_show)*1000;
+WP_IN_delay:=UINT_TO_TIME(WP_IN_delay_show)*1000;
+WP_delta_delay:=UINT_TO_TIME(WP_delta_delay_show)*1000;
+Heater_temp_delay:=UINT_TO_TIME(Heater_temp_delay_show)*1000;
+
+MFC_ALM_TIMER1(IN:=MFC_ALM_FLAG1,PT:=MFC_delay,Q=>);
+MFC_ALM_TIMER2(IN:=MFC_ALM_FLAG2,PT:=MFC_delay,Q=>);
+WTR_TEMP_ALM_TIMER(IN:=WTR_TEMP_ALM_FLAG,PT:=water_temp_delay,Q=>);
+WP_IN_ALM_TIMER(IN:=WP_IN_ALM_FLAG,PT:=WP_IN_delay,Q=>);
+WTR_DELTA_ALM_TIMER(IN:=WTR_DELTA_ALM_FLAG,PT:=WP_delta_delay,Q=>);
+HEATER_TEMP_ALM_TIMER1(IN:=HEATER_TEMP_ALM_FLAG1,PT:=Heater_temp_delay,Q=>);
+HEATER_TEMP_ALM_TIMER2(IN:=HEATER_TEMP_ALM_FLAG2,PT:=Heater_temp_delay,Q=>);
+
+MFC_ALM_TRIG1(CLK:=MFC_ALM_TIMER1.Q,Q=>);
+MFC_ALM_TRIG2(CLK:=MFC_ALM_TIMER2.Q,Q=>);
+WTR_TEMP_ALM_TRIG(CLK:=WTR_TEMP_ALM_TIMER.Q,Q=>);
+WP_IN_ALM_TRIG(CLK:=WP_IN_ALM_TIMER.Q,Q=>);
+WTR_DELTA_ALM_TRIG(CLK:=WTR_DELTA_ALM_TIMER.Q,Q=>);
+HEATER_TEMP_ALM_TRIG1(CLK:=HEATER_TEMP_ALM_TIMER1.Q,Q=>);
+HEATER_TEMP_ALM_TRIG2(CLK:=HEATER_TEMP_ALM_TIMER2.Q,Q=>);
+
+IF (MFC1_Inp < MFC1_dis *(1-MFC_alarm_setting*0.01) OR MFC1_Inp > MFC1_dis *(1+MFC_alarm_setting*0.01)) AND MFC1_Inp <> 0 THEN
+	MFC_ALM_FLAG1:=1;
+	ALM_MFC1_DEV:=1;
+ELSE
+	MFC_ALM_FLAG1:=0;
+	ALM_MFC1_DEV:=0;
+END_IF
+
+IF (MFC2_Inp < MFC2_dis *(1-MFC_alarm_setting*0.01) OR MFC2_Inp > MFC2_dis *(1+MFC_alarm_setting*0.01)) AND MFC2_Inp <> 0 THEN
+	MFC_ALM_FLAG2:=1;
+	ALM_MFC2_DEV:=1;
+ELSE
+	MFC_ALM_FLAG2:=0;
+	ALM_MFC2_DEV:=0;
+END_IF
+
+IF MFC_ALM_TRIG1.Q OR MFC_ALM_TRIG2.Q THEN
+	DO1_7:=0;//DO1_7:=0會叫
+END_IF
+
+
+IF PV1 > Heater_temp_seeting THEN
+	HEATER_TEMP_ALM_FLAG1:=1;
+	ALM_Heater1_Temp:=1;
+ELSE
+	HEATER_TEMP_ALM_FLAG1:=0;
+	ALM_Heater1_Temp:=0;
+END_IF
+
+IF PV2 > Heater_temp_seeting THEN
+	HEATER_TEMP_ALM_FLAG2:=1;
+	ALM_Heater2_Temp:=1;
+ELSE
+	HEATER_TEMP_ALM_FLAG2:=0;
+	ALM_Heater2_Temp:=0;
+END_IF
+
+IF HEATER_TEMP_ALM_TRIG1.Q OR HEATER_TEMP_ALM_TRIG2.Q THEN
+	DO1_7:=0;
+END_IF
+
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="CG1_trans" Id="{b27d50c9-3c23-4a6c-b156-50c14d887a2c}">
+      <Implementation>
+        <ST><![CDATA[TTR91_U_CG1 := AI0_3/6553.5 ;
+temp_CG1 := (TTR91_U_CG1 - TTR91_C)/1.286;
+TTR91_P_CG1 := EXPT(10,temp_CG1);
+IF TTR91_P_CG1 > 1 THEN
+	temp_string_CG1 := LREAL_TO_STRING(TTR91_P_CG1);
+	aSplit_CG1[1] := temp_string_CG1;
+	FOR i_CG1:=1 TO 5 DO
+    bResultSplit_CG1 := FindAndSplitChar( sSeparatorChar := '.',  pSrcString := ADR(aSplit_CG1[i_CG1]), 
+                                      pLeftString    := ADR(aSplit_CG1[i_CG1]),   nLeftSize  := SIZEOF(aSplit_CG1[i_CG1]), 
+                                      pRightString   := ADR(aSplit_CG1[i_CG1+1]), nRightSize := SIZEOF(aSplit_CG1[i_CG1+1]),
+                                      bSearchFromRight := FALSE );
+    IF NOT bResultSplit_CG1 THEN
+        EXIT;
+    END_IF
+	END_FOR
+	str2_CG1:=left(temp_string_CG1,3);
+	IF TTR91_P_CG1 >= 100 THEN
+		str2_CG1:=REAL_TO_STRING(STRING_TO_INT(str2_CG1)/100.0);
+	ELSIF TTR91_P_CG1 < 100 AND TTR91_P_CG1 >= 10 THEN
+		str2_CG1:=REAL_TO_STRING(STRING_TO_INT(str2_CG1)/10.0);
+	ELSIF TTR91_P_CG1 >=1 AND TTR91_P_CG1 < 10 THEN
+		str2_CG1:=REAL_TO_STRING(STRING_TO_real(str2_CG1));
+	END_IF
+	
+	str1_CG1:=CONCAT('e+',INT_TO_STRING(len(aSplit_CG1[1])-1));
+	show_CG1 := CONCAT (str2_CG1,str1_CG1);
+ELSE
+	temp_string_CG1 := LREAL_TO_STRING(TTR91_P_CG1);
+	str1_CG1:=right(temp_string_CG1,3);
+	str2_CG1:=left(temp_string_CG1,4);
+	show_CG1 := CONCAT (str2_CG1,str1_CG1);
+END_IF]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="CG2_trans" Id="{7c6f7ece-71b4-41cc-8f0a-722780d37161}">
+      <Implementation>
+        <ST><![CDATA[TTR91_U_CG2 := AI1_0/6553.5 ;
+temp_CG2 := (TTR91_U_CG2 - TTR91_C)/1.286;
+TTR91_P_CG2 := EXPT(10,temp_CG2);
+IF TTR91_P_CG2 > 1 THEN
+	temp_string_CG2 := LREAL_TO_STRING(TTR91_P_CG2);
+	aSplit_CG2[1] := temp_string_CG2;
+	FOR i_CG2:=1 TO 5 DO
+    bResultSplit_CG2 := FindAndSplitChar( sSeparatorChar := '.',  pSrcString := ADR(aSplit_CG2[i_CG2]), 
+                                      pLeftString    := ADR(aSplit_CG2[i_CG2]),   nLeftSize  := SIZEOF(aSplit_CG2[i_CG2]), 
+                                      pRightString   := ADR(aSplit_CG2[i_CG2+1]), nRightSize := SIZEOF(aSplit_CG2[i_CG2+1]),
+                                      bSearchFromRight := FALSE );
+    IF NOT bResultSplit_CG2 THEN
+        EXIT;
+    END_IF
+	END_FOR
+	str2_CG2:=left(temp_string_CG2,3);
+	IF TTR91_P_CG2 >= 100 THEN
+		str2_CG2:=REAL_TO_STRING(STRING_TO_INT(str2_CG2)/100.0);
+	ELSIF TTR91_P_CG2 < 100 AND TTR91_P_CG2 >=10 THEN
+		str2_CG2:=REAL_TO_STRING(STRING_TO_INT(str2_CG2)/10.0);
+	ELSIF TTR91_P_CG2 <10 AND TTR91_P_CG2 >=1 THEN
+		 str2_CG2:=REAL_TO_STRING(STRING_TO_REAL(str2_CG2));
+	END_IF
+	
+	str1_CG2:=CONCAT('e+',INT_TO_STRING(len(aSplit_CG2[1])-1));
+	show_CG2 := CONCAT (str2_CG2,str1_CG2);
+ELSE
+	temp_string_CG2 := LREAL_TO_STRING(TTR91_P_CG2);
+	str1_CG2:=right(temp_string_CG2,3);
+	str2_CG2:=left(temp_string_CG2,4);
+	show_CG2 := CONCAT (str2_CG2,str1_CG2);
+END_IF]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="CG3_trans" Id="{5829a654-c630-4f3b-a8b0-52ec4414275c}">
+      <Implementation>
+        <ST><![CDATA[TTR91_U_CG3 := AI1_1/6553.5 ;
+temp_CG3 := (TTR91_U_CG3 - TTR91_C)/1.286;
+TTR91_P_CG3 := EXPT(10,temp_CG3);
+IF TTR91_P_CG3 > 1 THEN
+	temp_string_CG3 := LREAL_TO_STRING(TTR91_P_CG3);
+	aSplit_CG3[1] := temp_string_CG3;
+	FOR i_CG3:=1 TO 5 DO
+    bResultSplit_CG3 := FindAndSplitChar( sSeparatorChar := '.',  pSrcString := ADR(aSplit_CG3[i_CG3]), 
+                                      pLeftString    := ADR(aSplit_CG3[i_CG3]),   nLeftSize  := SIZEOF(aSplit_CG3[i_CG3]), 
+                                      pRightString   := ADR(aSplit_CG3[i_CG3+1]), nRightSize := SIZEOF(aSplit_CG3[i_CG3+1]),
+                                      bSearchFromRight := FALSE );
+    IF NOT bResultSplit_CG3 THEN
+        EXIT;
+    END_IF
+	END_FOR
+	str2_CG3:=left(temp_string_CG3,3);
+	IF TTR91_P_CG3 >= 10 AND TTR91_P_CG3 < 100 THEN
+		str2_CG3:=REAL_TO_STRING(STRING_TO_INT(str2_CG3)/10.0);
+	ELSIF TTR91_P_CG3 >= 100 THEN
+		str2_CG3:=REAL_TO_STRING(STRING_TO_INT(str2_CG3)/100.0);
+	ELSIF TTR91_P_CG3 < 10 AND TTR91_P_CG3 >= 1 THEN
+		str2_CG3:=REAL_TO_STRING(STRING_TO_REAL(str2_CG3));
+	END_IF
+	
+	str1_CG3:=CONCAT('e+',INT_TO_STRING(len(aSplit_CG3[1])-1));
+	show_CG3 := CONCAT (str2_CG3,str1_CG3);
+ELSE
+	temp_string_CG3 := LREAL_TO_STRING(TTR91_P_CG3);
+	str1_CG3:=right(temp_string_CG3,3);
+	str2_CG3:=left(temp_string_CG3,4);
+	show_CG3 := CONCAT (str2_CG3,str1_CG3);
+END_IF]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="INTERLOCK" Id="{fc7bbf5b-9743-49f8-a693-8a43aa19af7f}">
+      <Implementation>
+        <ST><![CDATA[//GV1
+
+IF NOT DI0_0 AND NOT DI0_1 THEN
+	GV1_CLS_DEVINP:=1;
+	ELSE
+	GV1_CLS_DEVINP:=0;	
+END_IF
+
+IF ATM1_DIS <GV1_OPN_CONST THEN
+	GV1_OPN_DEVINP:=1;
+	ELSE
+	GV1_OPN_DEVINP:=0;	
+END_IF
+
+//GV2
+
+IF NOT DI0_2 AND NOT DI0_3 THEN
+	GV2_CLS_DEVINP:=1;
+	ELSE
+	GV2_CLS_DEVINP:=0;	
+END_IF
+
+IF ABS(ATM1_DIS-ATM2_DIS)>GV2_OPN_CONST THEN
+	GV2_OPN_DEVINP:=1;
+	ELSE
+	GV2_OPN_DEVINP:=0;	
+END_IF
+
+// LV80 Pump
+
+IF LV80_btn AND di1_4 THEN
+	DO3_6:=1;
+	ELSE
+	DO3_6:=0;
+	LV80_btn:=0;
+END_IF
+
+IF WSU_btn AND DO3_6 THEN
+	DO3_7:=1;
+	ELSE
+	DO3_7:=0;	
+END_IF
+
+//wsu_devinp
+
+IF DO3_6 THEN
+	WSU_DEVINP:=0;
+	ELSE
+	WSU_DEVINP:=1;	
+END_IF]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="REC_func" Id="{779b2a15-9b7a-4eb7-9195-09ac981e6661}">
+      <Implementation>
+        <ST><![CDATA[Rec_Ctrl(
+	Enable		:= Rec_start_btn,
+	Stop        := Rec_stop, 
+	Step		:= Full_Recipt[cur_rec], 
+	bStart		=> , 
+	State       => , 
+	bBusy		=> , 
+	bDone		=> , 
+	bError		=> );]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="Rec_reset" Id="{f5e75fd4-1127-4d8d-b6f9-24afe892e9c0}">
+      <Implementation>
+        <ST><![CDATA[CUR_step_name:='';
+GV1_btn_open:=0;
+GV1_btn_close:=0;
+GV2_btn_open:=0;
+GV2_btn_close:=0;
+lv80_btn:=0;
+WSU_btn:=0;
+MFC1_Inp:=0;
+MFC2_Inp:=0;
+mfc1_open_btn:=0;
+mfc2_open_btn:=0;
+DO2_0:=0;
+DO2_1:=0;
+DO2_2:=0;
+DO2_3:=0;
+DO2_4:=0;
+DO2_5:=0;
+DO2_6:=0;
+DO2_7:=0;
+DO3_0:=0;
+DO3_1:=0;
+DO3_2:=0;
+DO3_3:=0;
+DO4_0:=0;
+DO4_1:=0;
+DO4_2:=0;
+DO4_3:=0;
+DO4_4:=0;
+DO4_5:=0;
+DO4_6:=0;
+DO4_7:=0;
+DO5_0:=0;
+ON_POS:=0;
+M1TOM2:=0;
+M2ToM3:=0;
+M3ToM2:=0;
+M2ToM1:=0;
+ON_POS_FLAG:=0;
+M1ToM2_flag:=0;
+M2ToM3_flag:=0;
+M3ToM2_flag:=0;
+M2ToM1_flag:=0;
+take_up_btn:=0;
+put_down_btn:=0;
+swing_btn:=0;
+Rec_take_up_finish:=0;
+Rec_put_down_finish:=0;
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="Recipe_variable_reset" Id="{5c7ebb0d-5caa-4bd5-8b1b-0b17d31205d4}">
+      <Implementation>
+        <ST><![CDATA[FOR i := 1 TO 10 DO
+	FOR j := 1 TO 30 DO
+		Full_recipt[i].Rec_array[j].step_Name:= WSTRING_TO_STRING("");
+		Full_recipt[i].Rec_array[j].GV1:=0;
+		Full_recipt[i].Rec_array[j].GV2:=0;
+		Full_recipt[i].Rec_array[j].LV80:=0;
+		Full_recipt[i].Rec_array[j].M1toM2:=0;
+		Full_recipt[i].Rec_array[j].M2_pressure_setting:=0;
+		Full_recipt[i].Rec_array[j].M2toM1:=0;
+		Full_recipt[i].Rec_array[j].M2toM3:=0;
+		Full_recipt[i].Rec_array[j].M3toM2:=0;
+		Full_recipt[i].Rec_array[j].MFC1_button:=0;
+		Full_recipt[i].Rec_array[j].MFC1_Setting:=0;
+		Full_recipt[i].Rec_array[j].MFC2_button:=0;
+		Full_recipt[i].Rec_array[j].MFC2_Setting:=0;
+		Full_recipt[i].Rec_array[j].NC1:=0;
+		Full_recipt[i].Rec_array[j].NC2:=0;
+		Full_recipt[i].Rec_array[j].NC3:=0;
+		Full_recipt[i].Rec_array[j].NC4:=0;
+		Full_recipt[i].Rec_array[j].NC5:=0;
+		Full_recipt[i].Rec_array[j].NC6:=0;
+		Full_recipt[i].Rec_array[j].NC7:=0;
+		Full_recipt[i].Rec_array[j].NC8:=0;
+		Full_recipt[i].Rec_array[j].NC9:=0;
+		Full_recipt[i].Rec_array[j].Position_setting:=0;
+		Full_recipt[i].Rec_array[j].Put_down:=0;
+		Full_recipt[i].Rec_array[j].RV1:=0;
+		Full_recipt[i].Rec_array[j].RV2:=0;
+		Full_recipt[i].Rec_array[j].Set2Pos:=0;
+		Full_recipt[i].Rec_array[j].Swing:=0;
+		Full_recipt[i].Rec_array[j].Take_up:=0;
+		Full_recipt[i].Rec_array[j].VB4:=0;
+		Full_recipt[i].Rec_array[j].VENT3:=0;
+		Full_recipt[i].Rec_array[j].VENT2:=0;
+		Full_recipt[i].Rec_array[j].WSU251:=0;
+	END_FOR
+	
+END_FOR]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="SNR_STATUS" Id="{84b8fa43-5b44-4689-9668-bf556377bfb8}">
+      <Implementation>
+        <ST><![CDATA[M1_SNR:=NOT DI0_0;
+M2_SNR1:=NOT DI0_1;
+M2_SNR2:=NOT DI0_2;
+M3_SNR1:=NOT DI0_3;
+M3_SNR2:=NOT DI0_4;
+M3_SNR3:=NOT DI0_5;
+
+IF ATM1_dis > -10 THEN
+	ATM1_STS:=1;
+ELSE
+	ATM1_STS:=0;
+END_IF
+
+IF ATM2_dis > -10 THEN
+	ATM2_STS:=1;
+ELSE
+	ATM2_STS:=0;
+END_IF
+
+IF ATM3_dis > -10 THEN
+	ATM3_STS:=1;
+ELSE
+	ATM3_STS:=0;
+END_IF
+
+IF DO3_6 THEN
+	LV80_STS:=1;
+ELSE
+	LV80_STS:=0;
+END_IF
+
+IF DO3_7 THEN
+	WSU_STS:=1;
+ELSE
+	WSU_STS:=0;
+END_IF
+
+IF HTC_ReadPos > 0 THEN
+	TV_STS:=1;
+ELSE
+	TV_STS:=0;
+END_IF]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="step_insert" Id="{11ecc058-915f-4e8e-b480-bcbabf33a07e}">
+      <Implementation>
+        <ST><![CDATA[insert_delay(IN:=insert_in,PT:=T#1MS,Q=>);
+
+IF insert_in = 0 THEN
+	insert_in:=1;
+END_IF
+
+IF insert_delay.Q AND q > cur_step THEN
+	Full_Recipt[cur_Rec].Rec_array[q]:=Full_Recipt[cur_Rec].Rec_array[q-1];
+	q:=q-1;
+	insert_in:=0;	
+END_IF
+
+IF q = cur_step THEN
+	Full_Recipt[cur_Rec].Rec_array[cur_step]:=Temp_Recipt_step;
+	q:=30;
+	insert_finish:=1;
+END_IF]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="valve_control" Id="{c66c7626-e2e5-4f2a-8379-8e0a2027b559}">
+      <Implementation>
+        <ST><![CDATA[//GV1 GV2
+
+  IF GV1_btn_open THEN
+	  DO1_0:=0;
+	  DO1_1:=1;
+  END_IF
+  
+ IF GV1_btn_close THEN
+	  DO1_0:=1;
+	  DO1_1:=0;
+  END_IF 
+  
+   IF GV2_btn_open THEN
+	  DO1_2:=0;
+	  DO1_3:=1;
+  END_IF
+  
+ IF GV2_btn_close THEN
+	  DO1_2:=1;
+	  DO1_3:=0;
+  END_IF 
+  
+  // M3 LOAD 2022/09/23
+  
+	IF M3_rail_open THEN
+	  DO0_0:=0;
+	  DO0_1:=1;
+	  DO0_4:=0;
+	  DO0_5:=1;
+	END_IF	 
+	
+	IF M3_rail_CLOSE THEN  
+	  DO0_0:=1;
+	  DO0_1:=0;
+	  DO0_4:=1;
+	  DO0_5:=0;
+	END_IF	  
+	
+	IF M3_pin_up THEN
+	  DO0_6:=1;
+	  DO0_7:=0;
+	  END_IF
+	IF M3_pin_DOWN THEN  
+	  DO0_6:=0;
+	  DO0_7:=1;	  
+	END_IF	  
+
+	
+	IF di2_5 AND di2_7 AND di3_1 AND di3_3 THEN
+		M3_rail_opened:=1;
+		ELSE
+		M3_rail_opened:=0;	
+	END_IF
+		IF di2_4 AND di2_6 AND di3_0 AND di3_2 THEN
+		M3_rail_closed:=1;
+		ELSE
+		M3_rail_closed:=0;	
+	END_IF 
+
+// up sequence 
+
+ IF m3_up_btn OR (take_up_btn AND NOT take_up_action) THEN
+    m3_up_flag:=1;
+    m3_down_flag:=0;
+    up_step1:=1;
+	take_up_action:=1;
+ END_IF
+ IF m3_up_flag AND up_step1 THEN
+    M3_rail_open:=1;
+    up_step1:=0;
+    up_step2:=1;
+ END_IF
+ IF m3_up_flag AND up_step2 AND M3_rail_opened THEN
+    M3_pin_up:=1;
+    up_step2:=0;
+    up_step3:=1;
+ END_IF
+ IF m3_up_flag AND up_step3 AND di3_4 THEN
+      M3_rail_open:=0;
+   M3_rail_close:=1;//close M3 rail
+   up_step3:=0;
+   up_step4:=1;
+ END_IF
+ 
+ IF m3_up_flag AND up_step4 AND M3_rail_closed  THEN
+      M3_pin_up:=0;
+   M3_pin_DOWN:=1; // ADD BY HUGO
+   up_step4:=0;
+   up_step5:=1;
+ END_IF
+ IF  m3_up_flag AND up_step5 AND  di3_5 THEN
+  M3_rail_close:=0;
+  up_step5:=0;
+  M3_pin_DOWN:=0;
+  m3_up_flag:=0;  // ADD BY HUGO
+  IF take_up_btn THEN
+	  Rec_take_up_finish:=1;
+  END_IF
+  take_up_action_reset_in:=1;
+ END_IF
+take_up_reset_action(IN:=take_up_action_reset_in,PT:=T#0.15S,Q=>);
+IF take_up_reset_action.Q THEN
+	take_up_action:=0;
+	take_up_action_reset_in:=0;
+END_IF
+
+ 
+//down sequence
+ 
+ IF (m3_down_btn OR put_down_btn) AND NOT put_down_action THEN
+    m3_up_flag:=0;
+    m3_down_flag:=1;
+    down_step1:=1;
+	put_down_action:=1;
+ END_IF
+ 
+ IF m3_down_flag AND down_step1 THEN
+    M3_pin_up:=1;
+    down_step1:=0;
+    down_step2:=1;
+ END_IF
+ 
+ IF m3_down_flag AND down_step2 AND di3_4 THEN
+    M3_rail_open:=1;
+    down_step2:=0;
+    down_step3:=1;
+ END_IF
+ IF m3_down_flag AND down_step3 AND m3_rail_opened THEN
+    M3_pin_up:=0;
+     M3_pin_DOWN:=1; // ADD BY HUGO
+    down_step3:=0;
+    down_step4:=1;
+ END_IF
+ IF m3_down_flag AND down_step4 AND di3_5 THEN
+    M3_rail_open:=0;
+    down_step4:=0;
+    m3_down_flag:=0; // ADD BY HUGO
+    M3_pin_DOWN:=0;
+	IF put_down_btn THEN
+		Rec_put_down_finish:=1;
+	END_IF
+	put_down_action_reset_in:=1;
+ END_IF
+	
+put_down_reset_action(IN:=put_down_action_reset_in,PT:=T#0.15S,Q=>);
+
+IF put_down_reset_action.Q = 1 THEN
+	put_down_action:=0;
+	put_down_action_reset_in:=0;
+END_IF
+//reset
+
+IF reset_btn = 1 THEN
+	m3_up_btn:=0;
+	m3_down_btn:=0;
+	m3_down_flag:=0;
+	m3_up_flag:=0;
+	up_step1:=0;
+	up_step2:=0;
+	up_step3:=0;
+	up_step4:=0;
+	up_step5:=0;
+	down_step1:=0;
+	down_step2:=0;
+	down_step3:=0;
+	down_step4:=0;
+	put_down_action:=0;
+	take_up_action:=0;
+END_IF
+
+(*	
+// up sequence	
+
+	IF m3_up_btn THEN
+	   m3_up_flag:=1;
+	   m3_down_flag:=0;
+	   up_step1:=1;
+	END_IF
+	IF m3_up_flag AND up_step1 THEN
+	   M3_rail_open:=1;
+	   up_step1:=0;
+	   up_step2:=1;
+	END_IF
+	IF m3_up_flag AND up_step2 AND M3_rail_opened THEN
+	   M3_pin_up:=1;
+	   up_step2:=0;
+	   up_step3:=1;
+	END_IF
+	IF m3_up_flag AND up_step3 AND di3_4 THEN
+	     M3_rail_open:=0;
+		 M3_rail_close:=1;//close M3 rail
+		 up_step3:=0;
+		 up_step4:=1;
+	END_IF
+	
+	IF m3_up_flag AND up_step4 AND M3_rail_closed  THEN
+	     M3_pin_up:=0;
+		 up_step4:=0;
+		 up_step5:=1;
+	END_IF
+	IF  m3_up_flag AND up_step5 AND  di3_5 THEN
+		M3_rail_close:=0;
+		M3_rail_closed:=0;
+		up_step5:=0;
+	END_IF
+	
+//down sequence
+	
+	IF m3_down_btn THEN
+	   m3_up_flag:=0;
+	   m3_down_flag:=1;
+	   down_step1:=1;
+	END_IF
+	
+	IF m3_down_flag AND down_step1 THEN
+	   M3_pin_up:=1;
+	   down_step1:=0;
+	   down_step2:=1;
+	END_IF
+	
+	IF m3_down_flag AND down_step2 AND di3_4 THEN
+	   M3_rail_open:=1;
+	   down_step2:=0;
+	   down_step3:=1;
+	END_IF
+	IF m3_down_flag AND down_step3 AND m3_rail_opened THEN
+	   M3_pin_up:=0;
+	   down_step3:=0;
+	   down_step4:=1;
+	END_IF
+	IF m3_down_flag AND down_step4 AND di3_5 THEN
+	  down_step4:=0;
+    END_IF 
+*)]]></ST>
+      </Implementation>
+    </Action>
+    <LineIds Name="MAIN">
+      <LineId Id="1189" Count="3" />
+      <LineId Id="1294" Count="0" />
+      <LineId Id="1193" Count="0" />
+      <LineId Id="1295" Count="0" />
+      <LineId Id="1194" Count="0" />
+      <LineId Id="1290" Count="3" />
+      <LineId Id="1296" Count="0" />
+      <LineId Id="1318" Count="0" />
+      <LineId Id="1297" Count="0" />
+      <LineId Id="1199" Count="5" />
+      <LineId Id="1298" Count="1" />
+      <LineId Id="1205" Count="5" />
+      <LineId Id="1300" Count="0" />
+      <LineId Id="1319" Count="0" />
+      <LineId Id="1301" Count="0" />
+      <LineId Id="1211" Count="4" />
+      <LineId Id="1302" Count="1" />
+      <LineId Id="1216" Count="5" />
+      <LineId Id="1304" Count="0" />
+      <LineId Id="1320" Count="0" />
+      <LineId Id="1305" Count="0" />
+      <LineId Id="1222" Count="5" />
+      <LineId Id="1306" Count="1" />
+      <LineId Id="1228" Count="4" />
+      <LineId Id="1308" Count="1" />
+      <LineId Id="1233" Count="4" />
+      <LineId Id="1310" Count="1" />
+      <LineId Id="1238" Count="4" />
+      <LineId Id="1312" Count="1" />
+      <LineId Id="1243" Count="4" />
+      <LineId Id="1314" Count="1" />
+      <LineId Id="1248" Count="4" />
+      <LineId Id="1316" Count="1" />
+      <LineId Id="1253" Count="6" />
+      <LineId Id="1185" Count="0" />
+      <LineId Id="1187" Count="1" />
+      <LineId Id="1279" Count="10" />
+      <LineId Id="25" Count="12" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="1773" Count="1" />
+      <LineId Id="2118" Count="25" />
+      <LineId Id="2690" Count="2" />
+      <LineId Id="2144" Count="12" />
+      <LineId Id="2158" Count="18" />
+      <LineId Id="2693" Count="2" />
+      <LineId Id="2177" Count="13" />
+      <LineId Id="1859" Count="27" />
+      <LineId Id="1823" Count="1" />
+      <LineId Id="167" Count="0" />
+      <LineId Id="104" Count="0" />
+      <LineId Id="169" Count="1" />
+      <LineId Id="933" Count="1" />
+      <LineId Id="533" Count="0" />
+      <LineId Id="2432" Count="0" />
+      <LineId Id="6861" Count="0" />
+      <LineId Id="6393" Count="1" />
+      <LineId Id="6626" Count="0" />
+      <LineId Id="6396" Count="0" />
+      <LineId Id="6870" Count="0" />
+      <LineId Id="6869" Count="0" />
+      <LineId Id="6871" Count="0" />
+      <LineId Id="6874" Count="0" />
+      <LineId Id="6872" Count="0" />
+      <LineId Id="6392" Count="0" />
+      <LineId Id="5018" Count="0" />
+      <LineId Id="5022" Count="0" />
+      <LineId Id="5019" Count="1" />
+      <LineId Id="5025" Count="0" />
+      <LineId Id="5027" Count="0" />
+      <LineId Id="5252" Count="0" />
+      <LineId Id="5028" Count="0" />
+      <LineId Id="5031" Count="0" />
+      <LineId Id="5029" Count="0" />
+      <LineId Id="5017" Count="0" />
+      <LineId Id="4305" Count="1" />
+      <LineId Id="4095" Count="0" />
+      <LineId Id="4084" Count="0" />
+      <LineId Id="3637" Count="0" />
+      <LineId Id="4307" Count="1" />
+      <LineId Id="4315" Count="0" />
+      <LineId Id="4314" Count="0" />
+      <LineId Id="4316" Count="1" />
+      <LineId Id="4310" Count="0" />
+      <LineId Id="4309" Count="0" />
+      <LineId Id="4312" Count="0" />
+      <LineId Id="3426" Count="0" />
+      <LineId Id="897" Count="9" />
+      <LineId Id="2433" Count="1" />
+      <LineId Id="2437" Count="0" />
+      <LineId Id="2439" Count="0" />
+      <LineId Id="2435" Count="1" />
+      <LineId Id="2440" Count="0" />
+      <LineId Id="2442" Count="3" />
+      <LineId Id="2441" Count="0" />
+      <LineId Id="907" Count="5" />
+      <LineId Id="727" Count="0" />
+      <LineId Id="2971" Count="0" />
+      <LineId Id="2969" Count="0" />
+      <LineId Id="2972" Count="0" />
+      <LineId Id="2970" Count="0" />
+      <LineId Id="2977" Count="0" />
+      <LineId Id="2983" Count="13" />
+      <LineId Id="2976" Count="0" />
+      <LineId Id="2998" Count="0" />
+      <LineId Id="3000" Count="1" />
+      <LineId Id="2997" Count="0" />
+      <LineId Id="3425" Count="0" />
+      <LineId Id="4077" Count="0" />
+      <LineId Id="4085" Count="0" />
+      <LineId Id="4540" Count="0" />
+      <LineId Id="4078" Count="1" />
+      <LineId Id="4088" Count="0" />
+      <LineId Id="4087" Count="0" />
+      <LineId Id="4089" Count="0" />
+      <LineId Id="4092" Count="0" />
+      <LineId Id="4090" Count="0" />
+      <LineId Id="4542" Count="0" />
+      <LineId Id="4541" Count="0" />
+      <LineId Id="4543" Count="0" />
+      <LineId Id="4545" Count="0" />
+      <LineId Id="4544" Count="0" />
+      <LineId Id="4529" Count="3" />
+      <LineId Id="4536" Count="0" />
+      <LineId Id="4535" Count="0" />
+      <LineId Id="4537" Count="0" />
+      <LineId Id="4546" Count="0" />
+      <LineId Id="4538" Count="0" />
+      <LineId Id="4549" Count="0" />
+      <LineId Id="4086" Count="0" />
+      <LineId Id="4550" Count="0" />
+      <LineId Id="4552" Count="1" />
+      <LineId Id="4555" Count="23" />
+      <LineId Id="4580" Count="2" />
+      <LineId Id="5014" Count="2" />
+      <LineId Id="5473" Count="1" />
+      <LineId Id="4551" Count="0" />
+      <LineId Id="4080" Count="3" />
+      <LineId Id="3213" Count="0" />
+      <LineId Id="6161" Count="0" />
+      <LineId Id="6160" Count="0" />
+      <LineId Id="6162" Count="1" />
+      <LineId Id="3422" Count="1" />
+      <LineId Id="5697" Count="1" />
+      <LineId Id="5923" Count="0" />
+      <LineId Id="5922" Count="0" />
+    </LineIds>
+    <LineIds Name="MAIN.ALARM">
+      <LineId Id="10" Count="1" />
+      <LineId Id="1" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="4" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="20" Count="1" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="54" Count="3" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="58" Count="1" />
+      <LineId Id="75" Count="2" />
+      <LineId Id="74" Count="0" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="61" Count="0" />
+      <LineId Id="60" Count="0" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="66" Count="6" />
+      <LineId Id="64" Count="0" />
+      <LineId Id="79" Count="2" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="65" Count="0" />
+      <LineId Id="62" Count="0" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="52" Count="0" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="46" Count="1" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="42" Count="1" />
+      <LineId Id="33" Count="5" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="82" Count="1" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="85" Count="0" />
+      <LineId Id="84" Count="0" />
+      <LineId Id="86" Count="1" />
+      <LineId Id="89" Count="2" />
+      <LineId Id="93" Count="0" />
+      <LineId Id="92" Count="0" />
+      <LineId Id="164" Count="0" />
+      <LineId Id="94" Count="2" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="156" Count="0" />
+      <LineId Id="121" Count="0" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="165" Count="0" />
+      <LineId Id="122" Count="1" />
+      <LineId Id="125" Count="0" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="157" Count="0" />
+      <LineId Id="100" Count="0" />
+      <LineId Id="99" Count="0" />
+      <LineId Id="101" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="103" Count="1" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="102" Count="0" />
+      <LineId Id="105" Count="2" />
+      <LineId Id="138" Count="0" />
+      <LineId Id="108" Count="1" />
+      <LineId Id="139" Count="0" />
+      <LineId Id="97" Count="0" />
+      <LineId Id="119" Count="0" />
+      <LineId Id="116" Count="0" />
+      <LineId Id="130" Count="0" />
+      <LineId Id="129" Count="0" />
+      <LineId Id="158" Count="0" />
+      <LineId Id="141" Count="0" />
+      <LineId Id="140" Count="0" />
+      <LineId Id="142" Count="0" />
+      <LineId Id="146" Count="0" />
+      <LineId Id="144" Count="1" />
+      <LineId Id="147" Count="0" />
+      <LineId Id="143" Count="0" />
+      <LineId Id="149" Count="0" />
+      <LineId Id="148" Count="0" />
+      <LineId Id="152" Count="3" />
+      <LineId Id="150" Count="1" />
+      <LineId Id="135" Count="0" />
+      <LineId Id="134" Count="0" />
+      <LineId Id="166" Count="1" />
+      <LineId Id="111" Count="0" />
+      <LineId Id="110" Count="0" />
+    </LineIds>
+    <LineIds Name="MAIN.CG1_trans">
+      <LineId Id="2" Count="9" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="13" Count="4" />
+      <LineId Id="27" Count="1" />
+      <LineId Id="30" Count="3" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="18" Count="7" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="MAIN.CG2_trans">
+      <LineId Id="26" Count="15" />
+      <LineId Id="50" Count="1" />
+      <LineId Id="53" Count="3" />
+      <LineId Id="52" Count="0" />
+      <LineId Id="42" Count="7" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="MAIN.CG3_trans">
+      <LineId Id="26" Count="15" />
+      <LineId Id="50" Count="1" />
+      <LineId Id="53" Count="3" />
+      <LineId Id="52" Count="0" />
+      <LineId Id="42" Count="7" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="MAIN.INTERLOCK">
+      <LineId Id="1" Count="0" />
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="4" Count="0" />
+      <LineId Id="6" Count="1" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="10" Count="4" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="18" Count="4" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="24" Count="4" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="35" Count="1" />
+      <LineId Id="52" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="39" Count="4" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="47" Count="1" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="49" Count="2" />
+    </LineIds>
+    <LineIds Name="MAIN.REC_func">
+      <LineId Id="10" Count="7" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="MAIN.Rec_reset">
+      <LineId Id="1" Count="1" />
+      <LineId Id="4" Count="17" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="30" Count="1" />
+      <LineId Id="24" Count="1" />
+      <LineId Id="32" Count="3" />
+      <LineId Id="26" Count="1" />
+      <LineId Id="36" Count="8" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="51" Count="3" />
+      <LineId Id="60" Count="1" />
+    </LineIds>
+    <LineIds Name="MAIN.Recipe_variable_reset">
+      <LineId Id="1" Count="0" />
+      <LineId Id="4" Count="1" />
+      <LineId Id="7" Count="2" />
+      <LineId Id="11" Count="28" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="2" Count="1" />
+    </LineIds>
+    <LineIds Name="MAIN.SNR_STATUS">
+      <LineId Id="1" Count="5" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="12" Count="1" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="15" Count="4" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="20" Count="4" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="29" Count="1" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="35" Count="1" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="41" Count="1" />
+      <LineId Id="40" Count="0" />
+    </LineIds>
+    <LineIds Name="MAIN.step_insert">
+      <LineId Id="28" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="50" Count="1" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="52" Count="0" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="66" Count="0" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="72" Count="0" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="75" Count="0" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="74" Count="0" />
+    </LineIds>
+    <LineIds Name="MAIN.valve_control">
+      <LineId Id="2" Count="19" />
+      <LineId Id="1" Count="0" />
+      <LineId Id="22" Count="3" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="152" Count="0" />
+      <LineId Id="151" Count="0" />
+      <LineId Id="56" Count="3" />
+      <LineId Id="54" Count="0" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="61" Count="2" />
+      <LineId Id="150" Count="0" />
+      <LineId Id="122" Count="1" />
+      <LineId Id="125" Count="0" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="66" Count="0" />
+      <LineId Id="97" Count="2" />
+      <LineId Id="101" Count="1" />
+      <LineId Id="100" Count="0" />
+      <LineId Id="146" Count="3" />
+      <LineId Id="145" Count="0" />
+      <LineId Id="181" Count="0" />
+      <LineId Id="325" Count="5" />
+      <LineId Id="457" Count="0" />
+      <LineId Id="331" Count="25" />
+      <LineId Id="358" Count="0" />
+      <LineId Id="390" Count="0" />
+      <LineId Id="359" Count="0" />
+      <LineId Id="472" Count="2" />
+      <LineId Id="482" Count="0" />
+      <LineId Id="360" Count="0" />
+      <LineId Id="458" Count="0" />
+      <LineId Id="483" Count="1" />
+      <LineId Id="486" Count="0" />
+      <LineId Id="485" Count="0" />
+      <LineId Id="461" Count="0" />
+      <LineId Id="361" Count="6" />
+      <LineId Id="462" Count="0" />
+      <LineId Id="368" Count="19" />
+      <LineId Id="469" Count="0" />
+      <LineId Id="388" Count="1" />
+      <LineId Id="391" Count="0" />
+      <LineId Id="475" Count="3" />
+      <LineId Id="179" Count="0" />
+      <LineId Id="463" Count="0" />
+      <LineId Id="479" Count="1" />
+      <LineId Id="464" Count="1" />
+      <LineId Id="481" Count="0" />
+      <LineId Id="466" Count="0" />
+      <LineId Id="159" Count="0" />
+      <LineId Id="161" Count="0" />
+      <LineId Id="160" Count="0" />
+      <LineId Id="162" Count="0" />
+      <LineId Id="166" Count="0" />
+      <LineId Id="164" Count="1" />
+      <LineId Id="167" Count="0" />
+      <LineId Id="171" Count="7" />
+      <LineId Id="467" Count="1" />
+      <LineId Id="163" Count="0" />
+      <LineId Id="393" Count="63" />
+      <LineId Id="392" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
